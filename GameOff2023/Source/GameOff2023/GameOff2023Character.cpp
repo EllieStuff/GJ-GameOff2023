@@ -141,7 +141,7 @@ void AGameOff2023Character::SetupPlayerInputComponent(class UInputComponent* Pla
 void AGameOff2023Character::OnFire()
 {
 	// try and fire a projectile
-	if (ProjectileClass != nullptr)
+	if (Projectile != nullptr)
 	{
 		UWorld* const World = GetWorld();
 		if (World != nullptr)
@@ -150,7 +150,7 @@ void AGameOff2023Character::OnFire()
 			{
 				const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();
 				const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();
-				World->SpawnActor<AGameOff2023Projectile>(ProjectileClass, SpawnLocation, SpawnRotation);
+				World->SpawnActor<AGameOff2023Projectile>(Projectile, SpawnLocation, SpawnRotation);
 			}
 			else
 			{
@@ -163,7 +163,7 @@ void AGameOff2023Character::OnFire()
 				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
 				// spawn the projectile at the muzzle
-				World->SpawnActor<AGameOff2023Projectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+				World->SpawnActor<AGameOff2023Projectile>(Projectile, SpawnLocation, SpawnRotation, ActorSpawnParams);
 			}
 		}
 	}

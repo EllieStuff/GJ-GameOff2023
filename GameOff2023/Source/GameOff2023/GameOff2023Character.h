@@ -72,7 +72,7 @@ public:
 
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category=Projectile)
-	TSubclassOf<class AGameOff2023Projectile> ProjectileClass;
+	TSubclassOf<class AGameOff2023Projectile> Projectile;
 
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)

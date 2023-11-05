@@ -9,6 +9,8 @@ ASlime::ASlime()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
+
 	baseScale = currScale = targetScale = GetActorRelativeScale3D();
 }
 
@@ -17,7 +19,7 @@ void ASlime::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetMesh()->OnComponentBeginOverlap.AddDynamic(this, &ASlime::OnOverlapBegin);
+	Mesh->OnComponentBeginOverlap.AddDynamic(this, &ASlime::OnOverlapBegin);
 	
 }
 
@@ -106,16 +108,10 @@ void ASlime::Tick(float DeltaTime)
 
 }
 
-// Called to bind functionality to input
-void ASlime::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
 
 void ASlime::PlayAnimation(UAnimationAsset* Animation, bool Loops)
 {
-	GetMesh()->PlayAnimation(Animation, Loops);
+	Mesh->PlayAnimation(Animation, Loops);
 }
 
 void ASlime::AddSlime(uint8 SlimesToAdd)
@@ -127,12 +123,13 @@ void ASlime::AddSlime(uint8 SlimesToAdd)
 		// Hacer lo que sea, tal vez que rebote?
 	}
 
-	RefreshTargetScale();
 	IncreaseSizeEvent();
 }
 
 void ASlime::IncreaseSizeFeedback()
 {
+	RefreshTargetScale();
+
 	// Implement particular methods in each slime, if not using events
 }
 
@@ -148,13 +145,15 @@ void ASlime::RemoveSlime(uint8 SlimesToRemove)
 		this->Destroy();
 	}
 	else {
-		RefreshTargetScale();
+		DecreaseSizeFeedback();
 	}
 
 }
 
 void ASlime::DecreaseSizeFeedback()
 {
+	RefreshTargetScale();
+
 	// Implement particular methods in each slime, if not using events
 }
 

@@ -3,21 +3,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "../GameOff2023Projectile.h"
 #include "Slime.generated.h"
 
 
 UENUM(BlueprintType)
 enum class ESlimeType : uint8
 {
-	JUMP UMETA(DisplayName = "Jump"),
+	JUMP = 0 UMETA(DisplayName = "Jump"),
 	ICE UMETA(DisplayName = "Ice"),
 	METAL UMETA(DisplayName = "Metal"),
-	NOT_INITIALIZED UMETA(DisplayName = "Not initialized")
+	NOT_INITIALIZED UMETA(DisplayName = "Not initialized"),
+	TEST UMETA(DisplayName = "Test")
 };
 
 UCLASS()
-class GAMEOFF2023_API ASlime : public ACharacter
+class GAMEOFF2023_API ASlime : public AActor
 {
 	GENERATED_BODY()
 
@@ -33,6 +34,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
 	int SlimeAmount = 1;
+
+	USkeletalMeshComponent* Mesh;
 
 	FVector baseScale, currScale, targetScale;
 	float sizeLerpTimer = 0, sizeLerpDuration = 1;
@@ -52,13 +55,13 @@ protected:
 	void UpdateBehaviourEvent_Implementation();
 
 	UFUNCTION(BlueprintCallable, Category = Slime)
-	void ActivateBehaviour();
+	virtual void ActivateBehaviour();
 	UFUNCTION(BlueprintNativeEvent, Category = Slime)
 	void ActivateBehaviourEvent();
 	void ActivateBehaviourEvent_Implementation();
 
 	UFUNCTION(BlueprintCallable, Category = Slime)
-	void DeactivateBehaviour();
+	virtual void DeactivateBehaviour();
 	UFUNCTION(BlueprintNativeEvent, Category = Slime)
 	void DeactivateBehaviourEvent();
 	void DeactivateBehaviourEvent_Implementation();
@@ -96,9 +99,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable, Category = Slime)
 	void PlayAnimation(UAnimationAsset* Animation, bool Loops);
