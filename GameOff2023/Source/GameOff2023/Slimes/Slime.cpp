@@ -11,7 +11,7 @@ ASlime::ASlime()
 
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 
-	baseScale = currScale = targetScale = GetActorRelativeScale3D();
+	BaseScale = CurrScale = TargetScale = GetActorRelativeScale3D();
 }
 
 // Called when the game starts or when spawned
@@ -56,7 +56,9 @@ void ASlime::DeactivateBehaviourEvent_Implementation()
 
 void ASlime::RefreshTargetScale()
 {
-	targetScale = baseScale * (SlimeAmount / 2.0f + 0.5f);
+	TargetScale = BaseScale * (SlimeAmount / 2.0f + 0.5f);
+	CurrScale = GetActorRelativeScale3D();
+	SizeLerpTimer = 0;
 	LerpingScale = true;
 }
 
@@ -96,11 +98,11 @@ void ASlime::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	if (LerpingScale) {
-		sizeLerpTimer += DeltaTime;
-		SetActorRelativeScale3D(FMath::Lerp<FVector>(currScale, targetScale, sizeLerpTimer / sizeLerpDuration));
-		if (sizeLerpTimer >= sizeLerpDuration) {
+		SizeLerpTimer += DeltaTime;
+		SetActorRelativeScale3D(FMath::Lerp<FVector>(CurrScale, TargetScale, SizeLerpTimer / SizeLerpDuration));
+		if (SizeLerpTimer >= SizeLerpDuration) {
 			LerpingScale = false;
-			currScale = targetScale;
+			CurrScale = TargetScale;
 		}
 	}
 

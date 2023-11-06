@@ -37,8 +37,8 @@ protected:
 
 	USkeletalMeshComponent* Mesh;
 
-	FVector baseScale, currScale, targetScale;
-	float sizeLerpTimer = 0, sizeLerpDuration = 1;
+	FVector BaseScale, CurrScale, TargetScale;
+	float SizeLerpTimer = 0, SizeLerpDuration = 1;
 	bool LerpingScale = false;
 
 	bool BehaviourActive = false;
