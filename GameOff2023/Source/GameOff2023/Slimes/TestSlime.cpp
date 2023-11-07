@@ -31,7 +31,7 @@ void ATestSlime::ActivateBehaviour()
 void ATestSlime::UpdateBehaviour()
 {
 	Super::UpdateBehaviour();
-	if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Orange, TEXT("Effect updated!"));
+	//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Orange, TEXT("Effect updated!"));
 }
 
 void ATestSlime::DeactivateBehaviour()
@@ -66,5 +66,12 @@ void ATestSlime::DecreaseSizeFeedback()
 {
 	Super::DecreaseSizeFeedback();
 	if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("Size decreased!"));
+}
+
+void ATestSlime::DestroySlime()
+{
+	if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Slime Destroyed!"));
+	
+	Super::DestroySlime();
 }
 

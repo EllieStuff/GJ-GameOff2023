@@ -26,11 +26,13 @@ public:
 	// Sets default values for this character's properties
 	ASlime();
 
+	const int MAX_SLIMES = 10;
+	const int MIN_SLIMES = 1;
+
 protected:
 	virtual void BeginPlay() override;
 
-	const uint8 MAX_SLIMES = 10;
-	const uint8 MIN_SLIMES = 1;
+	FTimerHandle TimerHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
 	int SlimeAmount = 1;
@@ -105,6 +107,12 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, Category = Slime)
 	void DecreaseSizeEvent();
 	void DecreaseSizeEvent_Implementation();
+
+	UFUNCTION(BlueprintCallable, Category = Slime)
+	virtual void DestroySlime();
+	UFUNCTION(BlueprintNativeEvent, Category = Slime)
+	void DestroySlimeEvent();
+	void DestroySlimeEvent_Implementation();
 
 public:	
 	// Called every frame

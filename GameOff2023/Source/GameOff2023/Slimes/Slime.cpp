@@ -2,6 +2,7 @@
 
 
 #include "Slimes/Slime.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 ASlime::ASlime()
@@ -69,14 +70,12 @@ void ASlime::RefreshTargetScale()
 	TargetScale = BaseScale * (SlimeAmount / 2.0f + 0.5f);
 	CurrScale = GetActorRelativeScale3D();
 	SizeLerpTimer = 0;
-	//StaticMesh->SetSimulatePhysics(false);
-	//Mesh->SetSimulatePhysics(false);
 	LerpingScale = true;
 }
 
 void ASlime::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor == this) return;
+	if ((OtherActor == nullptr) || (OtherActor == this) || (OtherComp == nullptr)) return;
 
 	if (Cast<ASlime>(OtherActor)) {
 		ASlime* targetSlime = Cast<ASlime>(OtherActor);
@@ -115,14 +114,14 @@ void ASlime::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAc
 //		OnOverlapScenarioEvent(OtherActor);
 //	}
 //}
-//
+
 void ASlime::OnHitBegin(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (OtherActor == this) return;
+	if ((OtherActor == nullptr) || (OtherActor == this) || (OtherComp == nullptr)) return;
 
 	if (Cast<ASlime>(OtherActor)) {
 		ASlime* targetSlime = Cast<ASlime>(OtherActor);
-		if (targetSlime->GetSlimeType() == this->GetSlimeType()) {
+		if (targetSlime->GetSlimeType() == this->GetSlimeType() && targetSlime->GetSlimeAmount() + this->GetSlimeAmount() <= targetSlime->MAX_SLIMES) {
 			if (targetSlime->GetSlimeAmount() > this->GetSlimeAmount()) {
 				targetSlime->AddSlime(this->GetSlimeAmount());
 				this->Destroy();
@@ -133,7 +132,7 @@ void ASlime::OnHitBegin(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 			}
 		}
 		else {
-			// Hacer que rebote?
+			// Hacer que rebote o simplemente dejarle ser?
 		}
 	}
 	else {
@@ -143,9 +142,13 @@ void ASlime::OnHitBegin(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 
 void ASlime::OnOverlapScenario(AActor* OtherActor)
 {
-	if (OtherActor->ActorHasTag("Floor")) {
+	// ToDo: Buscar alternativa que no sigui el nom... 
+	//	- no se perque tags no funcionen
+	//if (OtherActor->ActorHasTag("Floor")) {
+	if (OtherActor->GetName().Contains("Floor")) {
 		StaticMesh->SetSimulatePhysics(false);
 	}
+
 	// Implement particular methods in each slime, if not using events
 }
 
@@ -165,8 +168,6 @@ void ASlime::Tick(float DeltaTime)
 		if (SizeLerpTimer >= SizeLerpDuration) {
 			LerpingScale = false;
 			CurrScale = TargetScale;
-			//StaticMesh->SetSimulatePhysics(true);
-			//Mesh->SetSimulatePhysics(true);
 		}
 	}
 
@@ -210,11 +211,11 @@ void ASlime::RemoveSlime(uint8 SlimesToRemove)
 {
 	SlimeAmount -= SlimesToRemove;
 	if (SlimeAmount < MIN_SLIMES) {
-		this->Destroy();
+		SlimeAmount = 0;
+		StaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetWorldTimerManager().SetTimer(TimerHandle, this, &ASlime::DestroySlimeEvent, 1.0f);
 	}
-	else {
-		DecreaseSizeEvent();
-	}
+	DecreaseSizeEvent();
 
 }
 
@@ -228,5 +229,17 @@ void ASlime::DecreaseSizeFeedback()
 void ASlime::DecreaseSizeEvent_Implementation()
 {
 	DecreaseSizeFeedback();
+}
+
+void ASlime::DestroySlime()
+{
+	if (this == nullptr) return;
+	GetWorldTimerManager().ClearTimer(TimerHandle);
+	this->Destroy(); 
+}
+
+void ASlime::DestroySlimeEvent_Implementation()
+{
+	DestroySlime();
 }
 

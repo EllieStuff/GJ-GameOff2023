@@ -64,7 +64,7 @@ void ASlimeProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, U
 	if (Cast<ASlime>(OtherActor))
 	{
 		ASlime* targetSlime = Cast<ASlime>(OtherActor);
-		if (targetSlime->GetSlimeType() == (ESlimeType)(SlimeToSpawnType)) {
+		if (targetSlime->GetSlimeType() == (ESlimeType)(SlimeToSpawnType) && targetSlime->GetSlimeAmount() < targetSlime->MAX_SLIMES) {
 			targetSlime->AddSlime();
 			Destroy();
 		}
