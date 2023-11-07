@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../GameOff2023Projectile.h"
+#include "GameFramework/Actor.h"
 #include "Slime.generated.h"
 
 
@@ -35,7 +35,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
 	int SlimeAmount = 1;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components)
 	USkeletalMeshComponent* Mesh;
+
+	/// Mesh de uso temporal hasta que tengamos los modelos riggeados, usar el USKeletalMeshComponent de arriba cuando esten
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components)
+	UStaticMeshComponent* StaticMesh;
+	///
 
 	FVector BaseScale, CurrScale, TargetScale;
 	float SizeLerpTimer = 0, SizeLerpDuration = 1;
@@ -70,6 +76,10 @@ protected:
 	UFUNCTION()
 	virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, 
 		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	/*UFUNCTION()
+	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);*/
+	UFUNCTION()
+	virtual void OnHitBegin(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	// Overlap with Scenario
 	UFUNCTION(BlueprintCallable, Category = Slime)
@@ -107,9 +117,12 @@ public:
 	void AddSlime(uint8 SlimesToAdd = 1);
 
 	UFUNCTION(BlueprintCallable, Category = Slime)
-	virtual void RemoveSlime(uint8 SlimesToRemove = 1);
+	void RemoveSlime(uint8 SlimesToRemove = 1);
 
 	UFUNCTION(BlueprintCallable, Category = Slime)
 	FORCEINLINE ESlimeType GetSlimeType() { return SlimeType; }
+	
+	UFUNCTION(BlueprintCallable, Category = Slime)
+	FORCEINLINE int GetSlimeAmount() { return SlimeAmount; }
 
 };

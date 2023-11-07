@@ -3,11 +3,11 @@
 
 #include "Slimes/TestSlime.h"
 
+
 ATestSlime::ATestSlime() : ASlime()
 {
 	SlimeType = ESlimeType::TEST;
 
-	StaticMesh = CreateDefaultSubobject<UMeshComponent>(TEXT("StaticMesh"));
 }
 
 void ATestSlime::BeginPlay()
@@ -45,7 +45,7 @@ void ATestSlime::DeactivateBehaviour()
 void ATestSlime::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	Super::OnOverlapBegin(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
-	if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("Scenario Overlapped!"));
+	if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("Something Overlapped!"));
 }
 
 void ATestSlime::OnOverlapScenario(AActor* OtherActor)
@@ -67,7 +67,4 @@ void ATestSlime::DecreaseSizeFeedback()
 	Super::DecreaseSizeFeedback();
 	if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("Size decreased!"));
 }
-
-
-
 

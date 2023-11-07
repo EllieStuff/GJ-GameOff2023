@@ -19,9 +19,6 @@ public:
 
 	void Tick(float DelataTime) override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components)
-	UMeshComponent* StaticMesh;
-
 protected:
 	void BeginPlay() override;
 
@@ -30,7 +27,7 @@ protected:
 	void DeactivateBehaviour() override;
 
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 	void OnOverlapScenario(AActor* OtherActor) override;
 
 	void IncreaseSizeFeedback() override;

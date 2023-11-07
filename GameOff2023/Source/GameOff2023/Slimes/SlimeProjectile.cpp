@@ -3,7 +3,7 @@
 
 #include "Slimes/SlimeProjectile.h"
 #include "Slimes/Slime.h"
-#include "Slimes/TestSlime.h"
+//#include "Slimes/TestSlime.h"
 
 ASlimeProjectile::ASlimeProjectile() : AGameOff2023Projectile()
 {
@@ -30,7 +30,7 @@ void ASlimeProjectile::SetSlimeType(uint8 SlimeType)
 
 	case ESlimeType::TEST:
 		// ToDo: Mirar si això funciona
-		SlimeToSpawn = LoadClass<ATestSlime>(NULL, TEXT("Blueprint'/Game/Blueprints/Slimes/bpSlimeProjectile.bpSlimeProjectile_C'"), NULL, LOAD_None, NULL);
+		//SlimeToSpawn = LoadClass<ATestSlime>(NULL, TEXT("Blueprint'/Game/Blueprints/Slimes/bpSlimeProjectile.bpSlimeProjectile_C'"), NULL, LOAD_None, NULL);
 		break;
 
 
@@ -45,16 +45,16 @@ void ASlimeProjectile::SpawnSlime()
 	UWorld* const World = GetWorld();
 	if (!World) return;
 
-	const FVector SpawnLocation = GetActorLocation();
+	/*const FVector SpawnLocation = GetActorLocation();
 	const FRotator SpawnRotation = FRotator::ZeroRotator;
-	World->SpawnActor<ASlime>(SlimeToSpawn, SpawnLocation, SpawnRotation);
-	/*
+	World->SpawnActor<ASlime>(SlimeToSpawn, SpawnLocation, SpawnRotation);*/
+	
 	const FRotator SpawnRotation = FRotator::ZeroRotator;
 	const FVector SpawnLocation = GetActorLocation();
 	FActorSpawnParameters ActorSpawnParams;
-	ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+	ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	World->SpawnActor<ASlime>(SlimeToSpawn, SpawnLocation, SpawnRotation, ActorSpawnParams);
-	*/
+	
 }
 
 void ASlimeProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -66,21 +66,21 @@ void ASlimeProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, U
 		ASlime* targetSlime = Cast<ASlime>(OtherActor);
 		if (targetSlime->GetSlimeType() == (ESlimeType)(SlimeToSpawnType)) {
 			targetSlime->AddSlime();
+			Destroy();
 		}
 		else {
-			SpawnSlime();
-
-			// Hacer que rebote?
-			//Cast<UPrimitiveComponent>(this)->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
+			UPrimitiveComponent* thisComp = Cast<UPrimitiveComponent>(this);
+			if(thisComp)
+				thisComp->AddImpulseAtLocation(GetVelocity() * -BounceForce, GetActorLocation());
+			//HitComp->AddImpulseAtLocation(GetVelocity() * -BounceForce, GetActorLocation());
 		}
 
 	}
 	else {
 		SpawnSlime();
-
+		Destroy();
 	}
 	
-	Destroy();
 
 }
 

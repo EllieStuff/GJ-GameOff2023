@@ -14,6 +14,10 @@ class GAMEOFF2023_API ASlimeProjectile : public AGameOff2023Projectile
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	float BounceForce = 100.0f;
+
 public:
 	ASlimeProjectile();
 
