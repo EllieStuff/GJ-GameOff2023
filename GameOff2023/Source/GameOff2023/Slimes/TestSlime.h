@@ -33,6 +33,7 @@ protected:
 	void IncreaseSizeFeedback() override;
 	void DecreaseSizeFeedback() override;
 
+	void Appear() override;
 	void DestroySlime() override;
 	
 };

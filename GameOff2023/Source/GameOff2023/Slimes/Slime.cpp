@@ -29,9 +29,7 @@ void ASlime::BeginPlay()
 	//Mesh->OnComponentBeginOverlap.AddDynamic(this, &ASlime::OnOverlapBegin);
 	//Mesh->SetSimulatePhysics(true);
 	
-	SetActorRelativeScale3D(FVector::OneVector / 2.0f);
-	RefreshTargetScale();
-	ActivateBehaviourEvent();
+	AppearEvent();
 }
 
 void ASlime::UpdateBehaviour()
@@ -229,6 +227,18 @@ void ASlime::DecreaseSizeFeedback()
 void ASlime::DecreaseSizeEvent_Implementation()
 {
 	DecreaseSizeFeedback();
+}
+
+void ASlime::Appear()
+{
+	SetActorRelativeScale3D(FVector::OneVector / 2.0f);
+	RefreshTargetScale();
+	ActivateBehaviourEvent();
+}
+
+void ASlime::AppearEvent_Implementation()
+{
+	Appear();
 }
 
 void ASlime::DestroySlime()

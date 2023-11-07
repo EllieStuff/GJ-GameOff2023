@@ -108,6 +108,13 @@ protected:
 	void DecreaseSizeEvent();
 	void DecreaseSizeEvent_Implementation();
 
+/// Spawning & Despawning
+	UFUNCTION(BlueprintCallable, Category = Slime)
+	virtual void Appear();
+	UFUNCTION(BlueprintNativeEvent, Category = Slime)
+	void AppearEvent();
+	void AppearEvent_Implementation();
+
 	UFUNCTION(BlueprintCallable, Category = Slime)
 	virtual void DestroySlime();
 	UFUNCTION(BlueprintNativeEvent, Category = Slime)

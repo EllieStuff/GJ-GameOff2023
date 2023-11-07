@@ -68,10 +68,17 @@ void ATestSlime::DecreaseSizeFeedback()
 	if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("Size decreased!"));
 }
 
+void ATestSlime::Appear()
+{
+	Super::Appear();
+	if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("Slime Appeared!"));
+}
+
 void ATestSlime::DestroySlime()
 {
+	// Code here, before Super function
 	if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Slime Destroyed!"));
-	
+
 	Super::DestroySlime();
 }
 
