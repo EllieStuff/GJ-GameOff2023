@@ -2,42 +2,26 @@
 
 
 #include "Slimes/SlimeProjectile.h"
+
 #include "Slimes/Slime.h"
-//#include "Slimes/TestSlime.h"
+#include "Slimes/TestSlime.h"
+#include "Slimes/MetalSlime.h"
+
 
 ASlimeProjectile::ASlimeProjectile() : AGameOff2023Projectile()
 {
 	SlimeToSpawnType = (uint8)(ESlimeType::TEST);
+
+	SlimesToSpawn.Add((uint8)ESlimeType::JUMP, nullptr);
+	SlimesToSpawn.Add((uint8)ESlimeType::ICE, nullptr);
+	SlimesToSpawn.Add((uint8)ESlimeType::METAL, nullptr);
+	SlimesToSpawn.Add((uint8)ESlimeType::TEST, nullptr);
 }
 
 
 void ASlimeProjectile::SetSlimeType(uint8 SlimeType)
 {
 	SlimeToSpawnType = SlimeType;
-	switch ((ESlimeType)(SlimeType))
-	{
-	case ESlimeType::JUMP:
-		
-		break;
-
-	case ESlimeType::ICE:
-
-		break;
-
-	case ESlimeType::METAL:
-
-		break;
-
-	case ESlimeType::TEST:
-		// ToDo: Mirar si això funciona
-		//SlimeToSpawn = LoadClass<ATestSlime>(NULL, TEXT("Blueprint'/Game/Blueprints/Slimes/bpSlimeProjectile.bpSlimeProjectile_C'"), NULL, LOAD_None, NULL);
-		break;
-
-
-	default:
-		UE_LOG(LogTemp, Warning, TEXT("Slime type not contemplated."));
-		break;
-	}
 }
 
 void ASlimeProjectile::SpawnSlime()
@@ -53,7 +37,10 @@ void ASlimeProjectile::SpawnSlime()
 	const FVector SpawnLocation = GetActorLocation();
 	FActorSpawnParameters ActorSpawnParams;
 	ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	World->SpawnActor<ASlime>(SlimeToSpawn, SpawnLocation, SpawnRotation, ActorSpawnParams);
+	if(SlimesToSpawn.Contains(SlimeToSpawnType))
+		World->SpawnActor<ASlime>(SlimesToSpawn[SlimeToSpawnType], SpawnLocation, SpawnRotation, ActorSpawnParams);
+	else
+		UE_LOG(LogTemp, Error, TEXT("Slime not found in map!"));
 	
 }
 

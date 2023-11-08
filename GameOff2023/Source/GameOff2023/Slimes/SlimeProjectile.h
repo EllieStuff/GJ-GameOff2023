@@ -6,6 +6,8 @@
 #include "GameOff2023Projectile.h"
 #include "SlimeProjectile.generated.h"
 
+//#include <List>
+
 /**
  * 
  */
@@ -22,7 +24,7 @@ public:
 	ASlimeProjectile();
 
 	UPROPERTY(EditAnywhere, Category = Components)
-	TSubclassOf<class ASlime> SlimeToSpawn;
+	TMap<uint8, TSubclassOf<class ASlime>> SlimesToSpawn;
 	uint8 SlimeToSpawnType;
 
 	void SetSlimeType(uint8 SlimeType);
