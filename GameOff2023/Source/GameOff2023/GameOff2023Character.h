@@ -72,7 +72,7 @@ public:
 
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category=Projectile)
-	TSubclassOf<class AGameOff2023Projectile> Projectile;
+	TSubclassOf<class ASlimeProjectile> Projectile;
 
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
@@ -86,10 +86,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint8 bUsingMotionControllers : 1;
 
+	uint8 CurrSlimeType;
+
 protected:
 	
 	/** Fires a projectile. */
-	void OnFire();
+	void OnFirePressed();
+
+	/** Suckles an Slime */
+	void OnSuckSlimePressed();
+
+	/** Changes Slime Ammo Type */
+	void OnChangeSlimeAmmoType(float value);
 
 	/** Resets HMD orientation and position in VR. */
 	void OnResetVR();

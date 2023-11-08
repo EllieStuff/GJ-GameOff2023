@@ -1,7 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "GameOff2023Character.h"
-#include "GameOff2023Projectile.h"
+#include "Slimes/Slime.h"
+#include "Slimes/SlimeProjectile.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -11,6 +12,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "MotionControllerComponent.h"
 #include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
+
+#include <Engine/World.h>
+
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -82,6 +86,11 @@ AGameOff2023Character::AGameOff2023Character()
 
 	// Uncomment the following line to turn motion controllers on by default:
 	//bUsingMotionControllers = true;
+
+
+	/// Our code
+	CurrSlimeType = (uint8)ESlimeType::TEST;
+
 }
 
 void AGameOff2023Character::BeginPlay()
@@ -117,8 +126,12 @@ void AGameOff2023Character::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	// Bind fire event
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AGameOff2023Character::OnFire);
+	// Bind gun events
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AGameOff2023Character::OnFirePressed);
+	PlayerInputComponent->BindAction("SuckSlime", IE_Pressed, this, &AGameOff2023Character::OnSuckSlimePressed);
+	PlayerInputComponent->BindAxis("ChangeAmmoType", this, &AGameOff2023Character::OnChangeSlimeAmmoType);
+	//PlayerInputComponent->BindAction("ChangeAmmoUp", IE_Pressed, this, &AGameOff2023Character::OnChangeSlimeAmmoUp);
+	//PlayerInputComponent->BindAction("ChangeAmmoDown", IE_Pressed, this, &AGameOff2023Character::OnChangeSlimeAmmoDown);
 
 	// Enable touchscreen input
 	EnableTouchscreenMovement(PlayerInputComponent);
@@ -138,7 +151,7 @@ void AGameOff2023Character::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AGameOff2023Character::LookUpAtRate);
 }
 
-void AGameOff2023Character::OnFire()
+void AGameOff2023Character::OnFirePressed()
 {
 	// try and fire a projectile
 	if (Projectile != nullptr)
@@ -150,7 +163,8 @@ void AGameOff2023Character::OnFire()
 			{
 				const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();
 				const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();
-				World->SpawnActor<AGameOff2023Projectile>(Projectile, SpawnLocation, SpawnRotation);
+				ASlimeProjectile* projectileRef = World->SpawnActor<ASlimeProjectile>(Projectile, SpawnLocation, SpawnRotation);
+				projectileRef->SetSlimeType(CurrSlimeType);
 			}
 			else
 			{
@@ -158,12 +172,13 @@ void AGameOff2023Character::OnFire()
 				// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
 				const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
 
-				//Set Spawn Collision Handling Override
+				// Set Spawn Collision Handling Override
 				FActorSpawnParameters ActorSpawnParams;
 				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-				// spawn the projectile at the muzzle
-				World->SpawnActor<AGameOff2023Projectile>(Projectile, SpawnLocation, SpawnRotation, ActorSpawnParams);
+				// Spawn the projectile at the muzzle
+				ASlimeProjectile* projectileRef = World->SpawnActor<ASlimeProjectile>(Projectile, SpawnLocation, SpawnRotation, ActorSpawnParams);
+				projectileRef->SetSlimeType(CurrSlimeType);
 			}
 		}
 	}
@@ -186,6 +201,57 @@ void AGameOff2023Character::OnFire()
 	}
 }
 
+void AGameOff2023Character::OnSuckSlimePressed()
+{
+	const UWorld* world = GetWorld();
+	if (!world) return;
+
+	FVector eyesLocation;
+	FRotator eyesRotation;
+	this->GetActorEyesViewPoint(eyesLocation, eyesRotation);
+
+	FVector rayStart = eyesLocation;
+	FVector rayEnd = rayStart + eyesRotation.Vector() * 1000.0f;
+
+	FHitResult hit;
+
+	FCollisionQueryParams queryParams;
+	queryParams.AddIgnoredActor(this);
+
+	bool success = world->LineTraceSingleByChannel(hit, rayStart, rayEnd, ECC_GameTraceChannel2, queryParams);
+	
+	if (success) {
+		AActor* otherActor = hit.GetActor();
+		if (!otherActor) return;
+
+		ASlime* targetSlime = Cast<ASlime>(otherActor);
+		if (!targetSlime) return;
+
+		UE_LOG(LogTemp, Warning, TEXT("Slime Removed at: %s --> %i slimes remaining."), *otherActor->GetName(), targetSlime->GetSlimeAmount() - 1);
+		targetSlime->RemoveSlime();
+	}
+
+}
+
+void AGameOff2023Character::OnChangeSlimeAmmoType(float value)
+{
+	const float THRESHOLD = 0.2f;
+	if (value > THRESHOLD) {
+		CurrSlimeType = (uint8)ESlimeType::TEST;
+		/*CurrSlimeType++;
+		if (CurrSlimeType >= (uint8)ESlimeType::COUNT) CurrSlimeType = 0;
+		const FString OnScreenMessage = FString::Printf(TEXT("Value is %i"), CurrSlimeType);
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, OnScreenMessage);*/
+	}
+	else if (value < -THRESHOLD) {
+		CurrSlimeType = (uint8)ESlimeType::METAL;
+		/*if (CurrSlimeType <= 0) CurrSlimeType = (uint8)ESlimeType::COUNT - 1;
+		else CurrSlimeType--;
+		const FString OnScreenMessage = FString::Printf(TEXT("Value is %i"), CurrSlimeType);
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, OnScreenMessage);*/
+	}
+}
+
 void AGameOff2023Character::OnResetVR()
 {
 	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
@@ -199,7 +265,7 @@ void AGameOff2023Character::BeginTouch(const ETouchIndex::Type FingerIndex, cons
 	}
 	if ((FingerIndex == TouchItem.FingerIndex) && (TouchItem.bMoved == false))
 	{
-		OnFire();
+		OnFirePressed();
 	}
 	TouchItem.bIsPressed = true;
 	TouchItem.FingerIndex = FingerIndex;

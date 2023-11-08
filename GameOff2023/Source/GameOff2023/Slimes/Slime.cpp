@@ -15,6 +15,8 @@ ASlime::ASlime()
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	Mesh->AttachTo(RootComponent);
 
+	StaticMesh->SetCollisionProfileName("Slime");
+
 	BaseScale = CurrScale = TargetScale = GetActorRelativeScale3D();
 }
 

@@ -11,8 +11,9 @@ UENUM(BlueprintType)
 enum class ESlimeType : uint8
 {
 	JUMP = 0 UMETA(DisplayName = "Jump"),
-	ICE UMETA(DisplayName = "Ice"),
-	METAL UMETA(DisplayName = "Metal"),
+	ICE = 1 UMETA(DisplayName = "Ice"),
+	METAL = 2 UMETA(DisplayName = "Metal"),
+	COUNT UMETA(DisplayName = "Count"),
 	NOT_INITIALIZED UMETA(DisplayName = "Not initialized"),
 	TEST UMETA(DisplayName = "Test")
 };
