@@ -129,6 +129,7 @@ void AGameOff2023Character::SetupPlayerInputComponent(class UInputComponent* Pla
 	// Bind gun events
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AGameOff2023Character::OnFirePressed);
 	PlayerInputComponent->BindAction("SuckSlime", IE_Pressed, this, &AGameOff2023Character::OnSuckSlimePressed);
+	PlayerInputComponent->BindAction("SuckSlime", IE_Released, this, &AGameOff2023Character::OnSuckSlimeReleased);
 	PlayerInputComponent->BindAxis("ChangeAmmoType", this, &AGameOff2023Character::OnChangeSlimeAmmoType);
 	//PlayerInputComponent->BindAction("ChangeAmmoUp", IE_Pressed, this, &AGameOff2023Character::OnChangeSlimeAmmoUp);
 	//PlayerInputComponent->BindAction("ChangeAmmoDown", IE_Pressed, this, &AGameOff2023Character::OnChangeSlimeAmmoDown);
@@ -151,7 +152,24 @@ void AGameOff2023Character::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AGameOff2023Character::LookUpAtRate);
 }
 
+void AGameOff2023Character::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (InSuckSlimesMode) 
+		UpdateSlimeSuckMode(DeltaTime);
+
+}
+
 void AGameOff2023Character::OnFirePressed()
+{
+	if (!CanShootSlime) return;
+	CanShootSlime = false;
+	ShootSlime();
+	GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &AGameOff2023Character::EnableShoot, 1.0f);
+}
+
+void AGameOff2023Character::ShootSlime()
 {
 	// try and fire a projectile
 	if (Projectile != nullptr)
@@ -201,17 +219,61 @@ void AGameOff2023Character::OnFirePressed()
 	}
 }
 
+void AGameOff2023Character::EnableShoot()
+{
+	CanShootSlime = true;
+}
+
 void AGameOff2023Character::OnSuckSlimePressed()
 {
+	InSuckSlimesMode = true;
+	ResetSlimeSuckMode();
+	SlimeSuckBeginEvent();
+}
+
+void AGameOff2023Character::OnSuckSlimeReleased()
+{
+	InSuckSlimesMode = false;
+	ResetSlimeSuckMode();
+	SlimeSuckEndEvent();
+}
+
+void AGameOff2023Character::ResetSlimeSuckMode()
+{
+	SuckSlimeTimer = 0;
+	SlimeBeingSucked = nullptr;
+}
+
+void AGameOff2023Character::UpdateSlimeSuckMode(float DeltaTime)
+{
+	ASlime* SlimeToSuck = GetSlimeToSuck();
+	if (SlimeToSuck == nullptr || SlimeBeingSucked != SlimeToSuck) {
+		SlimeBeingSucked = SlimeToSuck;
+		SuckSlimeTimer = 0;
+		UE_LOG(LogTemp, Warning, TEXT("SlimeSuckMode reseted or slime not found."));
+	}
+	else {
+		SuckSlimeTimer += DeltaTime;
+		UE_LOG(LogTemp, Warning, TEXT("Removing at: %s. Time Count = %f"), *SlimeToSuck->GetName(), SuckSlimeTimer);
+		if (SuckSlimeTimer >= SuckSlimeDelay) {
+			ResetSlimeSuckMode();
+			UE_LOG(LogTemp, Warning, TEXT("Slime Removed at: %s --> %i slimes remaining."), *SlimeToSuck->GetName(), SlimeToSuck->GetSlimeAmount() - 1);
+			SlimeToSuck->RemoveSlime();
+		}
+	}
+}
+
+ASlime* AGameOff2023Character::GetSlimeToSuck()
+{
 	const UWorld* world = GetWorld();
-	if (!world) return;
+	if (!world) return nullptr;
 
 	FVector eyesLocation;
 	FRotator eyesRotation;
 	this->GetActorEyesViewPoint(eyesLocation, eyesRotation);
 
 	FVector rayStart = eyesLocation;
-	FVector rayEnd = rayStart + eyesRotation.Vector() * 1000.0f;
+	FVector rayEnd = rayStart + eyesRotation.Vector() * 10000.0f;
 
 	FHitResult hit;
 
@@ -219,19 +281,17 @@ void AGameOff2023Character::OnSuckSlimePressed()
 	queryParams.AddIgnoredActor(this);
 
 	bool success = world->LineTraceSingleByChannel(hit, rayStart, rayEnd, ECC_GameTraceChannel2, queryParams);
-	
+
 	if (success) {
 		AActor* otherActor = hit.GetActor();
-		if (!otherActor) return;
+		if (!otherActor) return nullptr;
 
 		ASlime* targetSlime = Cast<ASlime>(otherActor);
-		if (!targetSlime) return;
-
-		UE_LOG(LogTemp, Warning, TEXT("Slime Removed at: %s --> %i slimes remaining."), *otherActor->GetName(), targetSlime->GetSlimeAmount() - 1);
-		targetSlime->RemoveSlime();
+		if (targetSlime) return targetSlime;
 	}
-
+	return nullptr;
 }
+
 
 void AGameOff2023Character::OnChangeSlimeAmmoType(float value)
 {
