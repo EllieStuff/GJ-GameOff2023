@@ -86,15 +86,41 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint8 bUsingMotionControllers : 1;
 
+	FTimerHandle ShootTimerHandle;
+	bool CanShootSlime = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	float ShootDelay{ 1 };
+
 	uint8 CurrSlimeType;
+	bool InSuckSlimesMode = false;
+	float SuckSlimeTimer{ 0 };
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	float SuckSlimeDelay{ 2.5f };
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	float SuckSlimeRange{ 300 };
+	class ASlime* SlimeBeingSucked = nullptr;
+
+	void Tick(float DeltaTime) override;
 
 protected:
 	
 	/** Fires a projectile. */
 	void OnFirePressed();
+	void ShootSlime();
+	void EnableShoot();
 
 	/** Suckles an Slime */
 	void OnSuckSlimePressed();
+	void OnSuckSlimeReleased();
+	void ResetSlimeSuckMode();
+	void UpdateSlimeSuckMode(float DeltaTime);
+	class ASlime* GetSlimeToSuck();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = Slime)
+	void SlimeSuckBeginEvent();
+	UFUNCTION(BlueprintImplementableEvent, Category = Slime)
+	void SlimeSuckEndEvent();
+
 
 	/** Changes Slime Ammo Type */
 	void OnChangeSlimeAmmoType(float value);
