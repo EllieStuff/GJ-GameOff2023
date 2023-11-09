@@ -297,18 +297,18 @@ void AGameOff2023Character::OnChangeSlimeAmmoType(float value)
 {
 	const float THRESHOLD = 0.2f;
 	if (value > THRESHOLD) {
-		CurrSlimeType = (uint8)ESlimeType::TEST;
-		/*CurrSlimeType++;
+		//CurrSlimeType = (uint8)ESlimeType::TEST;
+		CurrSlimeType++;
 		if (CurrSlimeType >= (uint8)ESlimeType::COUNT) CurrSlimeType = 0;
 		const FString OnScreenMessage = FString::Printf(TEXT("Value is %i"), CurrSlimeType);
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, OnScreenMessage);*/
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, OnScreenMessage);
 	}
 	else if (value < -THRESHOLD) {
-		CurrSlimeType = (uint8)ESlimeType::METAL;
-		/*if (CurrSlimeType <= 0) CurrSlimeType = (uint8)ESlimeType::COUNT - 1;
+		//CurrSlimeType = (uint8)ESlimeType::METAL;
+		if (CurrSlimeType <= 0) CurrSlimeType = (uint8)ESlimeType::COUNT - 1;
 		else CurrSlimeType--;
 		const FString OnScreenMessage = FString::Printf(TEXT("Value is %i"), CurrSlimeType);
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, OnScreenMessage);*/
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, OnScreenMessage);
 	}
 }
 
