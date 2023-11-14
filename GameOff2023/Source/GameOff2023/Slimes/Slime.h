@@ -38,13 +38,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
 	int SlimeAmount = 1;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
 	USkeletalMeshComponent* Mesh;
-
-	/// Mesh de uso temporal hasta que tengamos los modelos riggeados, usar el USKeletalMeshComponent de arriba cuando esten
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components)
-	UStaticMeshComponent* StaticMesh;
-	///
+	
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	//UStaticMeshComponent* CollisionMesh;
 
 	FVector BaseScale, CurrScale, TargetScale;
 	float SizeLerpTimer = 0, SizeLerpDuration = 1;

@@ -10,12 +10,13 @@ ASlime::ASlime()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
-	RootComponent = StaticMesh;
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
-	Mesh->AttachTo(RootComponent);
+	RootComponent = Mesh;
+	Mesh->SetSimulatePhysics(true);
+	Mesh->SetCollisionProfileName("Slime");
+	Mesh->BodyInstance.bNotifyRigidBodyCollision = true;
+	Mesh->SetGenerateOverlapEvents(true);
 
-	StaticMesh->SetCollisionProfileName("Slime");
 
 	BaseScale = CurrScale = TargetScale = GetActorRelativeScale3D();
 }
@@ -25,11 +26,9 @@ void ASlime::BeginPlay()
 {
 	Super::BeginPlay();
 
-	StaticMesh->OnComponentBeginOverlap.AddDynamic(this, &ASlime::OnOverlapBegin);
-	StaticMesh->OnComponentHit.AddDynamic(this, &ASlime::OnHitBegin);
-	StaticMesh->SetSimulatePhysics(true);
-	//Mesh->OnComponentBeginOverlap.AddDynamic(this, &ASlime::OnOverlapBegin);
 	//Mesh->SetSimulatePhysics(true);
+	Mesh->OnComponentBeginOverlap.AddDynamic(this, &ASlime::OnOverlapBegin);
+	Mesh->OnComponentHit.AddDynamic(this, &ASlime::OnHitBegin);
 	
 	AppearEvent();
 }
@@ -146,7 +145,7 @@ void ASlime::OnOverlapScenario(AActor* OtherActor)
 	//	- no se perque tags no funcionen
 	//if (OtherActor->ActorHasTag("Floor")) {
 	if (OtherActor->GetName().Contains("Floor")) {
-		StaticMesh->SetSimulatePhysics(false);
+		Mesh->SetSimulatePhysics(false);
 	}
 
 	// Implement particular methods in each slime, if not using events
@@ -171,7 +170,7 @@ void ASlime::Tick(float DeltaTime)
 		}
 	}
 
-	Mesh->UpdateCollisionProfile();
+	//CollisionMesh->UpdateCollisionProfile();
 
 	if(BehaviourActive) UpdateBehaviourEvent();
 
@@ -212,7 +211,7 @@ void ASlime::RemoveSlime(uint8 SlimesToRemove)
 	SlimeAmount -= SlimesToRemove;
 	if (SlimeAmount < MIN_SLIMES) {
 		SlimeAmount = 0;
-		StaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetWorldTimerManager().SetTimer(TimerHandle, this, &ASlime::DestroySlimeEvent, 1.0f);
 	}
 	DecreaseSizeEvent();
