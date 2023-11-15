@@ -182,7 +182,8 @@ void AGameOff2023Character::ShootSlime()
 				const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();
 				const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();
 				ASlimeProjectile* projectileRef = World->SpawnActor<ASlimeProjectile>(Projectile, SpawnLocation, SpawnRotation);
-				projectileRef->SetSlimeType(CurrSlimeType);
+				if (projectileRef != nullptr)
+					projectileRef->SetSlimeType(CurrSlimeType);
 			}
 			else
 			{
@@ -196,7 +197,8 @@ void AGameOff2023Character::ShootSlime()
 
 				// Spawn the projectile at the muzzle
 				ASlimeProjectile* projectileRef = World->SpawnActor<ASlimeProjectile>(Projectile, SpawnLocation, SpawnRotation, ActorSpawnParams);
-				projectileRef->SetSlimeType(CurrSlimeType);
+				if (projectileRef != nullptr)
+					projectileRef->SetSlimeType(CurrSlimeType);
 			}
 		}
 	}

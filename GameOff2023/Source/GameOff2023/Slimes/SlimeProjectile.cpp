@@ -21,7 +21,8 @@ ASlimeProjectile::ASlimeProjectile() : AGameOff2023Projectile()
 
 void ASlimeProjectile::SetSlimeType(uint8 SlimeType)
 {
-	SlimeToSpawnType = SlimeType;
+	if(this != nullptr)
+		SlimeToSpawnType = SlimeType;
 }
 
 void ASlimeProjectile::SpawnSlime()
