@@ -98,21 +98,6 @@ void ASlime::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAc
 
 }
 
-//void ASlime::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-//{
-//	if (Cast<ASlime>(OtherActor)) {
-//		ASlime* targetSlime = Cast<ASlime>(OtherActor);
-//		if (targetSlime->GetSlimeType() == GetSlimeType()) {
-//			AddSlime();
-//		}
-//		else {
-//			// Hacer que rebote?
-//		}
-//	}
-//	else {
-//		OnOverlapScenarioEvent(OtherActor);
-//	}
-//}
 
 void ASlime::OnHitBegin(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {

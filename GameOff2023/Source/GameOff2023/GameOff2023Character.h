@@ -86,8 +86,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint8 bUsingMotionControllers : 1;
 
+	UPROPERTY(EditAnywhere, Category = Components)
+	uint8 initialAmmo = 3, maxAmmo = 5;
+	UPROPERTY(EditAnywhere, Category = Components)
+	TMap<uint8, uint8> SlimesAmmunition;
+
 	FTimerHandle ShootTimerHandle;
-	bool CanShootSlime = true;
+	bool SlimeLoaded = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	float ShootDelay{ 1 };
 
@@ -102,12 +107,15 @@ public:
 
 	void Tick(float DeltaTime) override;
 
+	bool CanShoot();
+
+
 protected:
 	
 	/** Fires a projectile. */
 	void OnFirePressed();
 	void ShootSlime();
-	void EnableShoot();
+	void LoadSlime();
 
 	/** Suckles an Slime */
 	void OnSuckSlimePressed();

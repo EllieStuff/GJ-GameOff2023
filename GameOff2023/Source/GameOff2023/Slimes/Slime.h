@@ -74,12 +74,10 @@ protected:
 	void DeactivateBehaviourEvent_Implementation();
 
 /// Overlap Begin
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = Collisions)
 	virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, 
 		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	/*UFUNCTION()
-	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);*/
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = Collisions)
 	virtual void OnHitBegin(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	// Overlap with Scenario
