@@ -89,7 +89,12 @@ AGameOff2023Character::AGameOff2023Character()
 
 
 	/// Our code
-	CurrSlimeType = (uint8)ESlimeType::TEST;
+	CurrSlimeType = (uint8)ESlimeType::JUMP;
+
+	SlimesAmmunition.Add((uint8)ESlimeType::JUMP, initialAmmo);
+	SlimesAmmunition.Add((uint8)ESlimeType::ICE, initialAmmo);
+	SlimesAmmunition.Add((uint8)ESlimeType::METAL, initialAmmo);
+	SlimesAmmunition.Add((uint8)ESlimeType::TEST, initialAmmo);
 
 }
 
@@ -161,12 +166,18 @@ void AGameOff2023Character::Tick(float DeltaTime)
 
 }
 
+bool AGameOff2023Character::CanShoot()
+{
+	return SlimeLoaded && SlimesAmmunition[CurrSlimeType] > 0;
+}
+
 void AGameOff2023Character::OnFirePressed()
 {
-	if (!CanShootSlime) return;
-	CanShootSlime = false;
+	if (!CanShoot()) return;
+	SlimeLoaded = false;
+	SlimesAmmunition[CurrSlimeType]--;
 	ShootSlime();
-	GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &AGameOff2023Character::EnableShoot, 1.0f);
+	GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &AGameOff2023Character::LoadSlime, 1.0f);
 }
 
 void AGameOff2023Character::ShootSlime()
@@ -182,8 +193,7 @@ void AGameOff2023Character::ShootSlime()
 				const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();
 				const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();
 				ASlimeProjectile* projectileRef = World->SpawnActor<ASlimeProjectile>(Projectile, SpawnLocation, SpawnRotation);
-				if (projectileRef != nullptr)
-					projectileRef->SetSlimeType(CurrSlimeType);
+				if (projectileRef != nullptr) projectileRef->SetSlimeType(CurrSlimeType);
 			}
 			else
 			{
@@ -197,9 +207,9 @@ void AGameOff2023Character::ShootSlime()
 
 				// Spawn the projectile at the muzzle
 				ASlimeProjectile* projectileRef = World->SpawnActor<ASlimeProjectile>(Projectile, SpawnLocation, SpawnRotation, ActorSpawnParams);
-				if (projectileRef != nullptr)
-					projectileRef->SetSlimeType(CurrSlimeType);
+				if (projectileRef != nullptr) projectileRef->SetSlimeType(CurrSlimeType);
 			}
+			
 		}
 	}
 
@@ -221,9 +231,9 @@ void AGameOff2023Character::ShootSlime()
 	}
 }
 
-void AGameOff2023Character::EnableShoot()
+void AGameOff2023Character::LoadSlime()
 {
-	CanShootSlime = true;
+	SlimeLoaded = true;
 }
 
 void AGameOff2023Character::OnSuckSlimePressed()
@@ -258,8 +268,9 @@ void AGameOff2023Character::UpdateSlimeSuckMode(float DeltaTime)
 		SuckSlimeTimer += DeltaTime;
 		UE_LOG(LogTemp, Warning, TEXT("Removing at: %s. Time Count = %f"), *SlimeToSuck->GetName(), SuckSlimeTimer);
 		if (SuckSlimeTimer >= SuckSlimeDelay) {
-			ResetSlimeSuckMode();
+			SlimesAmmunition[(uint8)SlimeToSuck->GetSlimeType()]++;
 			UE_LOG(LogTemp, Warning, TEXT("Slime Removed at: %s --> %i slimes remaining."), *SlimeToSuck->GetName(), SlimeToSuck->GetSlimeAmount() - 1);
+			ResetSlimeSuckMode();
 			SlimeToSuck->RemoveSlime();
 		}
 	}
@@ -302,14 +313,14 @@ void AGameOff2023Character::OnChangeSlimeAmmoType(float value)
 		//CurrSlimeType = (uint8)ESlimeType::TEST;
 		CurrSlimeType++;
 		if (CurrSlimeType >= (uint8)ESlimeType::COUNT) CurrSlimeType = 0;
-		const FString OnScreenMessage = FString::Printf(TEXT("Value is %i"), CurrSlimeType);
+		const FString OnScreenMessage = FString::Printf(TEXT("Type is %i, ammunition is %i"), CurrSlimeType, SlimesAmmunition[CurrSlimeType]);
 		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, OnScreenMessage);
 	}
 	else if (value < -THRESHOLD) {
 		//CurrSlimeType = (uint8)ESlimeType::METAL;
 		if (CurrSlimeType <= 0) CurrSlimeType = (uint8)ESlimeType::COUNT - 1;
 		else CurrSlimeType--;
-		const FString OnScreenMessage = FString::Printf(TEXT("Value is %i"), CurrSlimeType);
+		const FString OnScreenMessage = FString::Printf(TEXT("Type is %i, ammunition is %i"), CurrSlimeType, SlimesAmmunition[CurrSlimeType]);
 		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, OnScreenMessage);
 	}
 }
