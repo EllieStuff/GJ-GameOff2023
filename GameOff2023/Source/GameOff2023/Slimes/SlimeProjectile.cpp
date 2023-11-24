@@ -10,19 +10,38 @@
 
 ASlimeProjectile::ASlimeProjectile() : AGameOff2023Projectile()
 {
-	SlimeToSpawnType = (uint8)(ESlimeType::TEST);
+	//SlimeToSpawnType = (uint8)(ESlimeType::TEST);
 
-	SlimesToSpawn.Add((uint8)ESlimeType::JUMP, nullptr);
+	/*SlimesToSpawn.Add((uint8)ESlimeType::JUMP, nullptr);
 	SlimesToSpawn.Add((uint8)ESlimeType::ICE, nullptr);
 	SlimesToSpawn.Add((uint8)ESlimeType::METAL, nullptr);
-	SlimesToSpawn.Add((uint8)ESlimeType::TEST, nullptr);
+	SlimesToSpawn.Add((uint8)ESlimeType::TEST, nullptr);*/
+
+	/*SlimesToSpawn_Materials.Add((uint8)ESlimeType::JUMP, nullptr);
+	SlimesToSpawn_Materials.Add((uint8)ESlimeType::ICE, nullptr);
+	SlimesToSpawn_Materials.Add((uint8)ESlimeType::METAL, nullptr);
+	SlimesToSpawn_Materials.Add((uint8)ESlimeType::TEST, nullptr);*/
 }
 
 
-void ASlimeProjectile::SetSlimeType(uint8 SlimeType)
+//void ASlimeProjectile::SetSlimeType(uint8 SlimeType)
+//{
+//	if (this != nullptr) {
+//		SlimeToSpawnType = SlimeType;
+//		if (!MeshComp) {
+//			UE_LOG(LogTemp, Error, TEXT("MeshComp not assigned"));
+//			return;
+//		}
+//
+//		MeshComp->SetMaterial(0, SlimesToSpawn_Materials[SlimeType]);
+//	}
+//}
+
+void ASlimeProjectile::SetSlimeRotation(FRotator Rotation)
 {
-	if(this != nullptr)
-		SlimeToSpawnType = SlimeType;
+	/*if (this != nullptr) {
+		SpawnRotation = Rotation;
+	}*/
 }
 
 void ASlimeProjectile::SpawnSlime()
@@ -34,14 +53,15 @@ void ASlimeProjectile::SpawnSlime()
 	const FRotator SpawnRotation = FRotator::ZeroRotator;
 	World->SpawnActor<ASlime>(SlimeToSpawn, SpawnLocation, SpawnRotation);*/
 	
-	const FRotator SpawnRotation = FRotator::ZeroRotator;
 	const FVector SpawnLocation = GetActorLocation();
 	FActorSpawnParameters ActorSpawnParams;
 	ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	if(SlimesToSpawn.Contains(SlimeToSpawnType))
-		World->SpawnActor<ASlime>(SlimesToSpawn[SlimeToSpawnType], SpawnLocation, SpawnRotation, ActorSpawnParams);
+	//if(SlimesToSpawn.Contains(SlimeToSpawnType))
+	//	World->SpawnActor<ASlime>(SlimesToSpawn[SlimeToSpawnType], SpawnLocation, SpawnRotation, ActorSpawnParams);
+	if(SlimeToSpawn)
+		World->SpawnActor<ASlime>(SlimeToSpawn, SpawnLocation, SpawnRotation, ActorSpawnParams);
 	else
-		UE_LOG(LogTemp, Error, TEXT("Slime not found in map!"));
+		UE_LOG(LogTemp, Error, TEXT("Slime not found!"));
 	
 }
 

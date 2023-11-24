@@ -91,10 +91,15 @@ AGameOff2023Character::AGameOff2023Character()
 	/// Our code
 	CurrSlimeType = (uint8)ESlimeType::JUMP;
 
-	SlimesAmmunition.Add((uint8)ESlimeType::JUMP, initialAmmo);
-	SlimesAmmunition.Add((uint8)ESlimeType::ICE, initialAmmo);
-	SlimesAmmunition.Add((uint8)ESlimeType::METAL, initialAmmo);
-	SlimesAmmunition.Add((uint8)ESlimeType::TEST, initialAmmo);
+	SlimesAmmunition.Add((uint8)ESlimeType::JUMP, INITIAL_AMMO);
+	SlimesAmmunition.Add((uint8)ESlimeType::ICE, INITIAL_AMMO);
+	SlimesAmmunition.Add((uint8)ESlimeType::METAL, INITIAL_AMMO);
+	SlimesAmmunition.Add((uint8)ESlimeType::TEST, INITIAL_AMMO);
+
+	Projectiles.Add((uint8)ESlimeType::JUMP, nullptr);
+	Projectiles.Add((uint8)ESlimeType::ICE, nullptr);
+	Projectiles.Add((uint8)ESlimeType::METAL, nullptr);
+	Projectiles.Add((uint8)ESlimeType::TEST, nullptr);
 
 }
 
@@ -183,7 +188,7 @@ void AGameOff2023Character::OnFirePressed()
 void AGameOff2023Character::ShootSlime()
 {
 	// try and fire a projectile
-	if (Projectile != nullptr)
+	if (Projectiles[CurrSlimeType] != nullptr)
 	{
 		UWorld* const World = GetWorld();
 		if (World != nullptr)
@@ -192,8 +197,13 @@ void AGameOff2023Character::ShootSlime()
 			{
 				const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();
 				const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();
-				ASlimeProjectile* projectileRef = World->SpawnActor<ASlimeProjectile>(Projectile, SpawnLocation, SpawnRotation);
-				if (projectileRef != nullptr) projectileRef->SetSlimeType(CurrSlimeType);
+				ASlimeProjectile* projectileRef = World->SpawnActor<ASlimeProjectile>(Projectiles[CurrSlimeType], SpawnLocation, SpawnRotation);
+				
+				if (projectileRef != nullptr) {
+					FVector SpawnRotationEuler = SpawnRotation.Euler();
+					SpawnRotationEuler.Y += 180;
+					projectileRef->SetSlimeRotation(SpawnRotationEuler.Rotation());
+				}
 			}
 			else
 			{
@@ -206,8 +216,13 @@ void AGameOff2023Character::ShootSlime()
 				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
 				// Spawn the projectile at the muzzle
-				ASlimeProjectile* projectileRef = World->SpawnActor<ASlimeProjectile>(Projectile, SpawnLocation, SpawnRotation, ActorSpawnParams);
-				if (projectileRef != nullptr) projectileRef->SetSlimeType(CurrSlimeType);
+				ASlimeProjectile* projectileRef = World->SpawnActor<ASlimeProjectile>(Projectiles[CurrSlimeType], SpawnLocation, SpawnRotation, ActorSpawnParams);
+				
+				if (projectileRef != nullptr) {
+					FVector SpawnRotationEuler = SpawnRotation.Euler();
+					SpawnRotationEuler.Y += 180;
+					projectileRef->SetSlimeRotation(SpawnRotationEuler.Rotation());
+				}
 			}
 			
 		}
@@ -265,6 +280,8 @@ void AGameOff2023Character::UpdateSlimeSuckMode(float DeltaTime)
 		UE_LOG(LogTemp, Warning, TEXT("SlimeSuckMode reseted or slime not found."));
 	}
 	else {
+		if (SlimesAmmunition[(uint8)SlimeToSuck->GetSlimeType()] >= MAX_AMMO) return;
+
 		SuckSlimeTimer += DeltaTime;
 		UE_LOG(LogTemp, Warning, TEXT("Removing at: %s. Time Count = %f"), *SlimeToSuck->GetName(), SuckSlimeTimer);
 		if (SuckSlimeTimer >= SuckSlimeDelay) {
