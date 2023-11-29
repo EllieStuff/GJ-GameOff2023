@@ -3,6 +3,7 @@
 
 #include "Slimes/Slime.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Slimes/SlimeReverseProjectile.h"
 
 // Sets default values
 ASlime::ASlime()
@@ -93,7 +94,11 @@ void ASlime::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAc
 		}
 	}
 	else {
-		OnOverlapScenarioEvent(OtherActor);
+		if (OtherActor->ActorHasTag("Floor"))
+			OnOverlapFloorEvent(OtherActor);
+
+		if (OtherActor->ActorHasTag("Water"))
+			OnOverlapWaterEvent(OtherActor);
 	}
 
 }
@@ -101,44 +106,56 @@ void ASlime::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAc
 
 void ASlime::OnHitBegin(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if ((OtherActor == nullptr) || (OtherActor == this) || (OtherComp == nullptr)) return;
+	//if ((OtherActor == nullptr) || (OtherActor == this) || (OtherComp == nullptr)) return;
+	//
+	//if (Cast<ASlime>(OtherActor)) {
+	//	ASlime* targetSlime = Cast<ASlime>(OtherActor);
+	//	if (targetSlime->GetSlimeType() == this->GetSlimeType() && targetSlime->GetSlimeAmount() + this->GetSlimeAmount() <= targetSlime->MAX_SLIMES) {
+	//		if (targetSlime->GetSlimeAmount() > this->GetSlimeAmount()) {
+	//			targetSlime->AddSlime(this->GetSlimeAmount());
+	//			this->Destroy();
+	//		}
+	//		else {
+	//			this->AddSlime(targetSlime->GetSlimeAmount());
+	//			targetSlime->Destroy();
+	//		}
+	//	}
+	//	else {
+	//		// Hacer que rebote o simplemente dejarle ser?
+	//	}
+	//}
+	//else {
+	//	if (OtherActor->ActorHasTag("Floor")) 
+	//		OnOverlapFloorEvent(OtherActor);
 
-	if (Cast<ASlime>(OtherActor)) {
-		ASlime* targetSlime = Cast<ASlime>(OtherActor);
-		if (targetSlime->GetSlimeType() == this->GetSlimeType() && targetSlime->GetSlimeAmount() + this->GetSlimeAmount() <= targetSlime->MAX_SLIMES) {
-			if (targetSlime->GetSlimeAmount() > this->GetSlimeAmount()) {
-				targetSlime->AddSlime(this->GetSlimeAmount());
-				this->Destroy();
-			}
-			else {
-				this->AddSlime(targetSlime->GetSlimeAmount());
-				targetSlime->Destroy();
-			}
-		}
-		else {
-			// Hacer que rebote o simplemente dejarle ser?
-		}
-	}
-	else {
-		OnOverlapScenarioEvent(OtherActor);
-	}
+	//	if (OtherActor->ActorHasTag("Water"))
+	//		OnOverlapWaterEvent(OtherActor);
+	//}
 }
 
-void ASlime::OnOverlapScenario(AActor* OtherActor)
+void ASlime::OnOverlapFloor(AActor* OtherActor)
 {
-	// ToDo: Buscar alternativa que no sigui el nom... 
-	//	- no se perque tags no funcionen
-	//if (OtherActor->ActorHasTag("Floor")) {
-	if (OtherActor->GetName().Contains("Floor")) {
-		Mesh->SetSimulatePhysics(false);
-	}
+	Mesh->SetSimulatePhysics(false);
+	
+	// Implement particular methods in each slime, if not using events
+}
+
+void ASlime::OnOverlapFloorEvent_Implementation(AActor* OtherActor)
+{
+	OnOverlapFloor(OtherActor);
+}
+
+void ASlime::OnOverlapWater(AActor* OtherActor)
+{
+	SpawnReverseProjectile();
+	DestroySlimeEvent();
 
 	// Implement particular methods in each slime, if not using events
 }
 
-void ASlime::OnOverlapScenarioEvent_Implementation(AActor* OtherActor)
+void ASlime::OnOverlapWaterEvent_Implementation(AActor* OtherActor)
 {
-	OnOverlapScenario(OtherActor);
+	OnOverlapWater(OtherActor);
 }
 
 // Called every frame
@@ -199,7 +216,24 @@ void ASlime::RemoveSlime(uint8 SlimesToRemove)
 		Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetWorldTimerManager().SetTimer(TimerHandle, this, &ASlime::DestroySlimeEvent, 1.0f);
 	}
+	SpawnReverseProjectile();
 	DecreaseSizeEvent();
+
+}
+
+void ASlime::SpawnReverseProjectile()
+{
+	UWorld* const World = GetWorld();
+	if (!World) return;
+
+	const FVector SpawnLocation = GetActorLocation();
+	const FRotator SpawnRotation = FRotator::ZeroRotator;
+	FActorSpawnParameters ActorSpawnParams;
+	ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	if (SlimeReverseProjectile)
+		World->SpawnActor<ASlimeReverseProjectile>(SlimeReverseProjectile, SpawnLocation, SpawnRotation, ActorSpawnParams);
+	else
+		UE_LOG(LogTemp, Error, TEXT("Slime not found!"));
 
 }
 

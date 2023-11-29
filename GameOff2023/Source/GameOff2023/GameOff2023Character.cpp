@@ -180,7 +180,7 @@ void AGameOff2023Character::OnFirePressed()
 {
 	if (!CanShoot()) return;
 	SlimeLoaded = false;
-	SlimesAmmunition[CurrSlimeType]--;
+	RemoveSlimeAmmunition(CurrSlimeType, 1);
 	ShootSlime();
 	GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &AGameOff2023Character::LoadSlime, 1.0f);
 }
@@ -285,7 +285,8 @@ void AGameOff2023Character::UpdateSlimeSuckMode(float DeltaTime)
 		SuckSlimeTimer += DeltaTime;
 		UE_LOG(LogTemp, Warning, TEXT("Removing at: %s. Time Count = %f"), *SlimeToSuck->GetName(), SuckSlimeTimer);
 		if (SuckSlimeTimer >= SuckSlimeDelay) {
-			SlimesAmmunition[(uint8)SlimeToSuck->GetSlimeType()]++;
+			// Slime Ammo is added from SlimeReverseProjectile
+			//AddSlimeAmmunition((uint8)SlimeToSuck->GetSlimeType(), 1);
 			UE_LOG(LogTemp, Warning, TEXT("Slime Removed at: %s --> %i slimes remaining."), *SlimeToSuck->GetName(), SlimeToSuck->GetSlimeAmount() - 1);
 			ResetSlimeSuckMode();
 			SlimeToSuck->RemoveSlime();
@@ -453,4 +454,20 @@ bool AGameOff2023Character::EnableTouchscreenMovement(class UInputComponent* Pla
 	}
 	
 	return false;
+}
+
+bool AGameOff2023Character::AddSlimeAmmunition(uint8 SlimeAmmunitionType, uint8 AmmunitionToAdd)
+{
+	if (!SlimesAmmunition.Find(SlimeAmmunitionType)) return false;
+
+	SlimesAmmunition[SlimeAmmunitionType] += AmmunitionToAdd;
+	return true;
+}
+
+bool AGameOff2023Character::RemoveSlimeAmmunition(uint8 SlimeAmmunitionType, uint8 AmmunitionToRemove)
+{
+	if (!SlimesAmmunition.Find(SlimeAmmunitionType)) return false;
+
+	SlimesAmmunition[SlimeAmmunitionType] -= AmmunitionToRemove;
+	return true;
 }

@@ -87,8 +87,6 @@ public:
 	uint8 bUsingMotionControllers : 1;
 
 	const uint8 INITIAL_AMMO = 3, MAX_AMMO = 10;
-	UPROPERTY(EditAnywhere, Category = Components)
-	TMap<uint8, uint8> SlimesAmmunition;
 
 	FTimerHandle ShootTimerHandle;
 	bool SlimeLoaded = true;
@@ -165,6 +163,9 @@ protected:
 	void EndTouch(const ETouchIndex::Type FingerIndex, const FVector Location);
 	void TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location);
 	TouchData	TouchItem;
+
+	UPROPERTY(EditAnywhere, Category = Components)
+	TMap<uint8, uint8> SlimesAmmunition;
 	
 protected:
 	// APawn interface
@@ -184,6 +185,10 @@ public:
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
+
+	bool AddSlimeAmmunition(uint8 SlimeAmmunitionType, uint8 AmmunitionToAdd = 1);
+	bool RemoveSlimeAmmunition(uint8 SlimeAmmunitionType, uint8 AmmunitionToRemove = 1);
 
 };
 
