@@ -71,8 +71,8 @@ public:
 	FVector GunOffset;
 
 	/** Projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category=Projectile)
-	TSubclassOf<class ASlimeProjectile> Projectile;
+	UPROPERTY(EditDefaultsOnly, Category=Projectiles)
+	TMap<uint8, TSubclassOf<class ASlimeProjectile>> Projectiles;
 
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
@@ -86,8 +86,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint8 bUsingMotionControllers : 1;
 
+	const uint8 INITIAL_AMMO = 3, MAX_AMMO = 10;
+	UPROPERTY(EditAnywhere, Category = Components)
+	TMap<uint8, uint8> SlimesAmmunition;
+
 	FTimerHandle ShootTimerHandle;
-	bool CanShootSlime = true;
+	bool SlimeLoaded = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	float ShootDelay{ 1 };
 
@@ -95,19 +99,22 @@ public:
 	bool InSuckSlimesMode = false;
 	float SuckSlimeTimer{ 0 };
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	float SuckSlimeDelay{ 2.5f };
+	float SuckSlimeDelay{ 1.5f };
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	float SuckSlimeRange{ 300 };
 	class ASlime* SlimeBeingSucked = nullptr;
 
 	void Tick(float DeltaTime) override;
 
+	bool CanShoot();
+
+
 protected:
 	
 	/** Fires a projectile. */
 	void OnFirePressed();
 	void ShootSlime();
-	void EnableShoot();
+	void LoadSlime();
 
 	/** Suckles an Slime */
 	void OnSuckSlimePressed();
