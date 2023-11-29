@@ -39,13 +39,13 @@ protected:
 	int SlimeAmount = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
-	USkeletalMeshComponent* Mesh;
+	USkeletalMeshComponent* MeshComp;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
 	TSubclassOf<class ASlimeReverseProjectile> SlimeReverseProjectile { nullptr };
 	
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
-	//UStaticMeshComponent* CollisionMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	UStaticMeshComponent* CollisionMesh;
 
 	FVector BaseScale, CurrScale, TargetScale;
 	float SizeLerpTimer = 0, SizeLerpDuration = 1;

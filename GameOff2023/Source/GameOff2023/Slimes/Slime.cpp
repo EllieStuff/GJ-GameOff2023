@@ -11,12 +11,25 @@ ASlime::ASlime()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
-	RootComponent = Mesh;
-	Mesh->SetSimulatePhysics(true);
-	Mesh->SetCollisionProfileName("Slime");
-	Mesh->BodyInstance.bNotifyRigidBodyCollision = true;
-	Mesh->SetGenerateOverlapEvents(true);
+	MeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
+	RootComponent = MeshComp;
+	MeshComp->SetSimulatePhysics(true);
+	//MeshComp->SetCollisionProfileName("Slime");
+	//MeshComp->BodyInstance.bNotifyRigidBodyCollision = true;
+	//MeshComp->SetGenerateOverlapEvents(true);
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+
+	CollisionMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CollisionMesh"));
+	//CollisionMesh->AddToRoot();
+	//CollisionMesh->SetSimulatePhysics(true);
+	CollisionMesh->SetCollisionProfileName("Slime");
+	CollisionMesh->BodyInstance.bNotifyRigidBodyCollision = true;
+	CollisionMesh->SetGenerateOverlapEvents(true);
+
+
+	//MeshComp->SetAllBodiesCollisionObjectType(ECC_GameTraceChannel2);
+
+	//GetMesh()->SetCollisionProfileName("NoCollision");
 
 
 	BaseScale = CurrScale = TargetScale = GetActorRelativeScale3D();
@@ -28,8 +41,8 @@ void ASlime::BeginPlay()
 	Super::BeginPlay();
 
 	//Mesh->SetSimulatePhysics(true);
-	Mesh->OnComponentBeginOverlap.AddDynamic(this, &ASlime::OnOverlapBegin);
-	Mesh->OnComponentHit.AddDynamic(this, &ASlime::OnHitBegin);
+	CollisionMesh->OnComponentBeginOverlap.AddDynamic(this, &ASlime::OnOverlapBegin);
+	CollisionMesh->OnComponentHit.AddDynamic(this, &ASlime::OnHitBegin);
 	
 	AppearEvent();
 }
@@ -135,7 +148,7 @@ void ASlime::OnHitBegin(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 
 void ASlime::OnOverlapFloor(AActor* OtherActor)
 {
-	Mesh->SetSimulatePhysics(false);
+	MeshComp->SetSimulatePhysics(false);
 	
 	// Implement particular methods in each slime, if not using events
 }
@@ -172,6 +185,7 @@ void ASlime::Tick(float DeltaTime)
 		}
 	}
 
+	CollisionMesh->SetWorldLocation(this->GetActorLocation());
 	//CollisionMesh->UpdateCollisionProfile();
 
 	if(BehaviourActive) UpdateBehaviourEvent();
@@ -181,7 +195,7 @@ void ASlime::Tick(float DeltaTime)
 
 void ASlime::PlayAnimation(UAnimationAsset* Animation, bool Loops)
 {
-	Mesh->PlayAnimation(Animation, Loops);
+	MeshComp->PlayAnimation(Animation, Loops);
 }
 
 void ASlime::AddSlime(uint8 SlimesToAdd)
@@ -213,7 +227,7 @@ void ASlime::RemoveSlime(uint8 SlimesToRemove)
 	SlimeAmount -= SlimesToRemove;
 	if (SlimeAmount < MIN_SLIMES) {
 		SlimeAmount = 0;
-		Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		CollisionMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetWorldTimerManager().SetTimer(TimerHandle, this, &ASlime::DestroySlimeEvent, 1.0f);
 	}
 	SpawnReverseProjectile();
