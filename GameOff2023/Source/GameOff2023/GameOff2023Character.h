@@ -164,8 +164,11 @@ protected:
 	void TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location);
 	TouchData	TouchItem;
 
-	UPROPERTY(EditAnywhere, Category = Components)
+	UPROPERTY(EditAnywhere, Category = Projectiles)
 	TMap<uint8, uint8> SlimesAmmunition;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectiles)
+	TMap<uint8, FColor> AmmoColors;
 	
 protected:
 	// APawn interface
