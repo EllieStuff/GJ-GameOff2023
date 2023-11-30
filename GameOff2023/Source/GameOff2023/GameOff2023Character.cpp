@@ -268,14 +268,19 @@ void AGameOff2023Character::OnSuckSlimeReleased()
 void AGameOff2023Character::ResetSlimeSuckMode()
 {
 	SuckSlimeTimer = 0;
-	SlimeBeingSucked = nullptr;
+	if (SlimeBeingSucked) {
+		SlimeBeingSucked->Anim_IsBeingSucked = false;
+		SlimeBeingSucked = nullptr;
+	}
 }
 
 void AGameOff2023Character::UpdateSlimeSuckMode(float DeltaTime)
 {
 	ASlime* SlimeToSuck = GetSlimeToSuck();
 	if (SlimeToSuck == nullptr || SlimeBeingSucked != SlimeToSuck) {
+		if (SlimeBeingSucked) SlimeBeingSucked->Anim_IsBeingSucked = false;
 		SlimeBeingSucked = SlimeToSuck;
+		SlimeBeingSucked->Anim_IsBeingSucked = true;
 		SuckSlimeTimer = 0;
 		UE_LOG(LogTemp, Warning, TEXT("SlimeSuckMode reseted or slime not found."));
 	}
