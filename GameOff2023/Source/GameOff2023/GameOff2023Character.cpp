@@ -335,18 +335,18 @@ void AGameOff2023Character::OnChangeSlimeAmmoType(float value)
 {
 	const float THRESHOLD = 0.2f;
 	if (value > THRESHOLD) {
-		//CurrSlimeType = (uint8)ESlimeType::TEST;
 		CurrSlimeType++;
 		if (CurrSlimeType >= (uint8)ESlimeType::COUNT) CurrSlimeType = 0;
-		const FString OnScreenMessage = FString::Printf(TEXT("Type is %i, ammunition is %i"), CurrSlimeType, SlimesAmmunition[CurrSlimeType]);
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, OnScreenMessage);
+		RefreshAmmunitionHUD();
+		//const FString OnScreenMessage = FString::Printf(TEXT("Type is %i, ammunition is %i"), CurrSlimeType, SlimesAmmunition[CurrSlimeType]);
+		//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, OnScreenMessage);
 	}
 	else if (value < -THRESHOLD) {
-		//CurrSlimeType = (uint8)ESlimeType::METAL;
 		if (CurrSlimeType <= 0) CurrSlimeType = (uint8)ESlimeType::COUNT - 1;
 		else CurrSlimeType--;
-		const FString OnScreenMessage = FString::Printf(TEXT("Type is %i, ammunition is %i"), CurrSlimeType, SlimesAmmunition[CurrSlimeType]);
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, OnScreenMessage);
+		RefreshAmmunitionHUD();
+		//const FString OnScreenMessage = FString::Printf(TEXT("Type is %i, ammunition is %i"), CurrSlimeType, SlimesAmmunition[CurrSlimeType]);
+		//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, OnScreenMessage);
 	}
 }
 
@@ -468,6 +468,7 @@ bool AGameOff2023Character::AddSlimeAmmunition(uint8 SlimeAmmunitionType, uint8 
 	if (!SlimesAmmunition.Find(SlimeAmmunitionType)) return false;
 
 	SlimesAmmunition[SlimeAmmunitionType] += AmmunitionToAdd;
+	RefreshAmmunitionPercentage();
 	return true;
 }
 
@@ -476,5 +477,32 @@ bool AGameOff2023Character::RemoveSlimeAmmunition(uint8 SlimeAmmunitionType, uin
 	if (!SlimesAmmunition.Find(SlimeAmmunitionType)) return false;
 
 	SlimesAmmunition[SlimeAmmunitionType] -= AmmunitionToRemove;
+	RefreshAmmunitionPercentage();
 	return true;
+}
+
+float AGameOff2023Character::GetCurrSlimeAmmunitionPercentage()
+{
+	return (float)SlimesAmmunition[CurrSlimeType] / (float)MAX_AMMO;
+}
+
+FColor AGameOff2023Character::GetCurrSlimeAmmunitionColor()
+{
+	switch ((ESlimeType)CurrSlimeType)
+	{
+	case ESlimeType::JUMP:
+		return FColor::Green;
+
+	case ESlimeType::ICE:
+		return FColor::Cyan;
+
+	case ESlimeType::METAL:
+		return FColor::Yellow;
+
+	case ESlimeType::TEST:
+		return FColor::White;
+
+	default:
+		return FColor::Black;
+	}
 }

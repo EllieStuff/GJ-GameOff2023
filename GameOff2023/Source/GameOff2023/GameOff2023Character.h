@@ -86,7 +86,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint8 bUsingMotionControllers : 1;
 
-	const uint8 INITIAL_AMMO = 3, MAX_AMMO = 10;
+	const uint8 INITIAL_AMMO = 3, MAX_AMMO = 5;
 
 	FTimerHandle ShootTimerHandle;
 	bool SlimeLoaded = true;
@@ -189,6 +189,14 @@ public:
 
 	bool AddSlimeAmmunition(uint8 SlimeAmmunitionType, uint8 AmmunitionToAdd = 1);
 	bool RemoveSlimeAmmunition(uint8 SlimeAmmunitionType, uint8 AmmunitionToRemove = 1);
+	UFUNCTION(BlueprintCallable, Category = Slime)
+	float GetCurrSlimeAmmunitionPercentage();
+	UFUNCTION(BlueprintCallable, Category = Slime)
+	FColor GetCurrSlimeAmmunitionColor();
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = Slime)
+	void RefreshAmmunitionPercentage();
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = Slime)
+	void RefreshAmmunitionHUD();
 
 };
 
