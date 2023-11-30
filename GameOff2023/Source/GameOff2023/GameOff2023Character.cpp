@@ -96,6 +96,11 @@ AGameOff2023Character::AGameOff2023Character()
 	SlimesAmmunition.Add((uint8)ESlimeType::METAL, INITIAL_AMMO);
 	SlimesAmmunition.Add((uint8)ESlimeType::TEST, INITIAL_AMMO);
 
+	AmmoColors.Add((uint8)ESlimeType::JUMP, FColor::Green);
+	AmmoColors.Add((uint8)ESlimeType::ICE, FColor::Cyan);
+	AmmoColors.Add((uint8)ESlimeType::METAL, FColor::Yellow);
+	AmmoColors.Add((uint8)ESlimeType::TEST, FColor::White);
+
 	Projectiles.Add((uint8)ESlimeType::JUMP, nullptr);
 	Projectiles.Add((uint8)ESlimeType::ICE, nullptr);
 	Projectiles.Add((uint8)ESlimeType::METAL, nullptr);
@@ -488,21 +493,7 @@ float AGameOff2023Character::GetCurrSlimeAmmunitionPercentage()
 
 FColor AGameOff2023Character::GetCurrSlimeAmmunitionColor()
 {
-	switch ((ESlimeType)CurrSlimeType)
-	{
-	case ESlimeType::JUMP:
-		return FColor::Green;
+	if (!AmmoColors.Contains(CurrSlimeType)) return FColor::Black;
 
-	case ESlimeType::ICE:
-		return FColor::Cyan;
-
-	case ESlimeType::METAL:
-		return FColor::Yellow;
-
-	case ESlimeType::TEST:
-		return FColor::White;
-
-	default:
-		return FColor::Black;
-	}
+	return AmmoColors[CurrSlimeType];
 }
