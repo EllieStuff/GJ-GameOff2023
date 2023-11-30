@@ -31,8 +31,6 @@ ASlime::ASlime()
 
 	//GetMesh()->SetCollisionProfileName("NoCollision");
 
-
-	BaseScale = CurrScale = TargetScale = GetActorRelativeScale3D();
 }
 
 // Called when the game starts or when spawned
@@ -44,7 +42,11 @@ void ASlime::BeginPlay()
 	CollisionMesh->OnComponentBeginOverlap.AddDynamic(this, &ASlime::OnOverlapBegin);
 	CollisionMesh->OnComponentHit.AddDynamic(this, &ASlime::OnHitBegin);
 	
+	BaseScale = CurrScale = TargetScale = GetActorRelativeScale3D();
+	BaseCollScale = CurrCollScale = TargetCollScale = CollisionMesh->GetRelativeScale3D();
 	AppearEvent();
+
+	PlayAnimation(IdleAnimation, true);
 }
 
 void ASlime::UpdateBehaviour()
@@ -82,6 +84,10 @@ void ASlime::RefreshTargetScale()
 {
 	TargetScale = BaseScale * (SlimeAmount / 2.0f + 0.5f);
 	CurrScale = GetActorRelativeScale3D();
+	TargetCollScale = BaseCollScale * (SlimeAmount / 2.0f + 0.5f);
+	CurrCollScale = CollisionMesh->GetRelativeScale3D();
+	PlayAnimation(HitAnimation, true);
+
 	SizeLerpTimer = 0;
 	LerpingScale = true;
 }
@@ -179,9 +185,11 @@ void ASlime::Tick(float DeltaTime)
 	if (LerpingScale) {
 		SizeLerpTimer += DeltaTime;
 		SetActorRelativeScale3D(FMath::Lerp<FVector>(CurrScale, TargetScale, SizeLerpTimer / SizeLerpDuration));
+		CollisionMesh->SetRelativeScale3D(FMath::Lerp<FVector>(CurrCollScale, TargetCollScale, SizeLerpTimer / SizeLerpDuration));
 		if (SizeLerpTimer >= SizeLerpDuration) {
 			LerpingScale = false;
 			CurrScale = TargetScale;
+			CurrCollScale = TargetCollScale;
 		}
 	}
 

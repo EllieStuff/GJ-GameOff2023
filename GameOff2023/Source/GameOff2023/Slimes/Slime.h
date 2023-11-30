@@ -48,6 +48,7 @@ protected:
 	UStaticMeshComponent* CollisionMesh;
 
 	FVector BaseScale, CurrScale, TargetScale;
+	FVector BaseCollScale, CurrCollScale, TargetCollScale;
 	float SizeLerpTimer = 0, SizeLerpDuration = 1;
 	bool LerpingScale = false;
 
@@ -55,6 +56,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
 	ESlimeType SlimeType { ESlimeType::NOT_INITIALIZED };
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	class UAnimationAsset* IdleAnimation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	class UAnimationAsset* HitAnimation;
 
 
 /// Behaviours
