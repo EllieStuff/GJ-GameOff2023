@@ -39,12 +39,16 @@ protected:
 	int SlimeAmount = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
-	USkeletalMeshComponent* Mesh;
+	USkeletalMeshComponent* MeshComp;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
+	TSubclassOf<class ASlimeReverseProjectile> SlimeReverseProjectile { nullptr };
 	
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
-	//UStaticMeshComponent* CollisionMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	UStaticMeshComponent* CollisionMesh;
 
 	FVector BaseScale, CurrScale, TargetScale;
+	FVector BaseCollScale, CurrCollScale, TargetCollScale;
 	float SizeLerpTimer = 0, SizeLerpDuration = 1;
 	bool LerpingScale = false;
 
@@ -52,6 +56,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
 	ESlimeType SlimeType { ESlimeType::NOT_INITIALIZED };
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	class UAnimationAsset* IdleAnimation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	class UAnimationAsset* HitAnimation;
 
 
 /// Behaviours
@@ -82,10 +91,16 @@ protected:
 
 	// Overlap with Scenario
 	UFUNCTION(BlueprintCallable, Category = Slime)
-	virtual void OnOverlapScenario(AActor* OtherActor);
+	virtual void OnOverlapFloor(AActor* OtherActor);
 	UFUNCTION(BlueprintNativeEvent, Category = Slime)
-	void OnOverlapScenarioEvent(AActor* OtherActor);
-	void OnOverlapScenarioEvent_Implementation(AActor* OtherActor);
+	void OnOverlapFloorEvent(AActor* OtherActor);
+	void OnOverlapFloorEvent_Implementation(AActor* OtherActor);
+
+	UFUNCTION(BlueprintCallable, Category = Slime)
+	virtual void OnOverlapWater(AActor* OtherActor);
+	UFUNCTION(BlueprintNativeEvent, Category = Slime)
+	void OnOverlapWaterEvent(AActor* OtherActor);
+	void OnOverlapWaterEvent_Implementation(AActor* OtherActor);
 
 /// Change Scale
 	UFUNCTION(BlueprintCallable, Category = Slime)
@@ -130,6 +145,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Slime)
 	void RemoveSlime(uint8 SlimesToRemove = 1);
+
+	UFUNCTION(BlueprintCallable, Category = Slime)
+	void SpawnReverseProjectile();
 
 	UFUNCTION(BlueprintCallable, Category = Slime)
 	FORCEINLINE ESlimeType GetSlimeType() { return SlimeType; }

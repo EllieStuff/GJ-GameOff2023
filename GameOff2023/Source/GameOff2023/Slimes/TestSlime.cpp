@@ -48,9 +48,9 @@ void ATestSlime::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Oth
 	if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("Something Overlapped!"));
 }
 
-void ATestSlime::OnOverlapScenario(AActor* OtherActor)
+void ATestSlime::OnOverlapFloor(AActor* OtherActor)
 {
-	Super::OnOverlapScenario(OtherActor);
+	Super::OnOverlapFloor(OtherActor);
 	if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("Scenario Overlapped!"));
 }
 
