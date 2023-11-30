@@ -153,6 +153,7 @@ void ASlime::OnHitBegin(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 void ASlime::OnOverlapFloor(AActor* OtherActor)
 {
 	MeshComp->SetSimulatePhysics(false);
+	CollisionMesh->SetSimulatePhysics(false);
 	
 	// Implement particular methods in each slime, if not using events
 }
@@ -234,6 +235,7 @@ void ASlime::RemoveSlime(uint8 SlimesToRemove)
 	SlimeAmount -= SlimesToRemove;
 	if (SlimeAmount < MIN_SLIMES) {
 		SlimeAmount = 0;
+		MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		CollisionMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetWorldTimerManager().SetTimer(TimerHandle, this, &ASlime::DestroySlimeEvent, 1.0f);
 	}

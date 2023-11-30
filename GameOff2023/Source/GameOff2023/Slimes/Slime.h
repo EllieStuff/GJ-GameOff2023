@@ -33,7 +33,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
 	bool Anim_IsIdle = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
-	bool Anim_IsGrowing = true;
+	bool Anim_IsGrowing = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
 	bool Anim_IsBeingSucked = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
