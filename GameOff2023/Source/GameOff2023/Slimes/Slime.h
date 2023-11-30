@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "GameFramework/Pawn.h"
 #include "Slime.generated.h"
 
 
@@ -19,7 +19,7 @@ enum class ESlimeType : uint8
 };
 
 UCLASS()
-class GAMEOFF2023_API ASlime : public AActor
+class GAMEOFF2023_API ASlime : public APawn
 {
 	GENERATED_BODY()
 
@@ -29,6 +29,18 @@ public:
 
 	const int MAX_SLIMES = 10;
 	const int MIN_SLIMES = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	bool Anim_IsIdle = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	bool Anim_IsGrowing = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	bool Anim_IsBeingSucked = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	bool Anim_IsStepped = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	bool Anim_IsHit = false;
+
 
 protected:
 	virtual void BeginPlay() override;
@@ -57,10 +69,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
 	ESlimeType SlimeType { ESlimeType::NOT_INITIALIZED };
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
 	class UAnimationAsset* IdleAnimation;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
-	class UAnimationAsset* HitAnimation;
+	class UAnimationAsset* HitAnimation;*/
 
 
 /// Behaviours

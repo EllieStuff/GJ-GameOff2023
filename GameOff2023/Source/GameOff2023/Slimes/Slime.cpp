@@ -45,8 +45,6 @@ void ASlime::BeginPlay()
 	BaseScale = CurrScale = TargetScale = GetActorRelativeScale3D();
 	BaseCollScale = CurrCollScale = TargetCollScale = CollisionMesh->GetRelativeScale3D();
 	AppearEvent();
-
-	PlayAnimation(IdleAnimation, true);
 }
 
 void ASlime::UpdateBehaviour()
@@ -86,10 +84,10 @@ void ASlime::RefreshTargetScale()
 	CurrScale = GetActorRelativeScale3D();
 	TargetCollScale = BaseCollScale * (SlimeAmount / 2.0f + 0.5f);
 	CurrCollScale = CollisionMesh->GetRelativeScale3D();
-	PlayAnimation(HitAnimation, true);
 
 	SizeLerpTimer = 0;
 	LerpingScale = true;
+	Anim_IsGrowing = true;
 }
 
 void ASlime::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -155,6 +153,7 @@ void ASlime::OnHitBegin(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 void ASlime::OnOverlapFloor(AActor* OtherActor)
 {
 	MeshComp->SetSimulatePhysics(false);
+	CollisionMesh->SetSimulatePhysics(false);
 	
 	// Implement particular methods in each slime, if not using events
 }
@@ -188,6 +187,7 @@ void ASlime::Tick(float DeltaTime)
 		CollisionMesh->SetRelativeScale3D(FMath::Lerp<FVector>(CurrCollScale, TargetCollScale, SizeLerpTimer / SizeLerpDuration));
 		if (SizeLerpTimer >= SizeLerpDuration) {
 			LerpingScale = false;
+			Anim_IsGrowing = false;
 			CurrScale = TargetScale;
 			CurrCollScale = TargetCollScale;
 		}
@@ -235,6 +235,7 @@ void ASlime::RemoveSlime(uint8 SlimesToRemove)
 	SlimeAmount -= SlimesToRemove;
 	if (SlimeAmount < MIN_SLIMES) {
 		SlimeAmount = 0;
+		MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		CollisionMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetWorldTimerManager().SetTimer(TimerHandle, this, &ASlime::DestroySlimeEvent, 1.0f);
 	}
