@@ -172,4 +172,7 @@ public:
 private:
 	bool HasFloorBelow();
 
+	bool FirstFrame = true;
+	void Start();
+
 };

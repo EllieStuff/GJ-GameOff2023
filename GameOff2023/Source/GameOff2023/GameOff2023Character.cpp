@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/AudioComponent.h"
 #include "GameFramework/InputSettings.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
@@ -89,6 +90,8 @@ AGameOff2023Character::AGameOff2023Character()
 
 
 	/// Our code
+	//AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComp"));
+
 	CurrSlimeType = (uint8)ESlimeType::JUMP;
 
 	SlimesAmmunition.Add((uint8)ESlimeType::JUMP, INITIAL_AMMO);
@@ -283,13 +286,18 @@ void AGameOff2023Character::UpdateSlimeSuckMode(float DeltaTime)
 {
 	ASlime* SlimeToSuck = GetSlimeToSuck();
 	if (SlimeToSuck == nullptr || SlimeBeingSucked != SlimeToSuck) {
-		if (SlimeBeingSucked) SlimeBeingSucked->Anim_IsBeingSucked = false;
+		//AudioComp->Stop();
+		if (SlimeBeingSucked) {
+			SlimeBeingSucked->Anim_IsBeingSucked = false;
+		}
 		if (SlimeToSuck) {
 			SlimeBeingSucked = SlimeToSuck;
 			SlimeBeingSucked->Anim_IsBeingSucked = true;
+			//if (SuckSlimeSound) AudioComp->Play();
+			if (SuckSlimeSound) UGameplayStatics::PlaySoundAtLocation(this, SuckSlimeSound, GetActorLocation());
 		}
 		SuckSlimeTimer = 0;
-		UE_LOG(LogTemp, Warning, TEXT("SlimeSuckMode reseted or slime not found."));
+		//UE_LOG(LogTemp, Warning, TEXT("SlimeSuckMode reseted or slime not found."));
 	}
 	else {
 		if (SlimesAmmunition[(uint8)SlimeToSuck->GetSlimeType()] >= MAX_AMMO) return;

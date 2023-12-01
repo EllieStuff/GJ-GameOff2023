@@ -38,13 +38,7 @@ void ASlime::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//Mesh->SetSimulatePhysics(true);
-	CollisionMesh->OnComponentBeginOverlap.AddDynamic(this, &ASlime::OnOverlapBegin);
-	CollisionMesh->OnComponentHit.AddDynamic(this, &ASlime::OnHitBegin);
-	
-	BaseScale = CurrScale = TargetScale = GetActorRelativeScale3D();
-	BaseCollScale = CurrCollScale = TargetCollScale = CollisionMesh->GetRelativeScale3D();
-	AppearEvent();
+	//Start();
 }
 
 void ASlime::UpdateBehaviour()
@@ -119,8 +113,8 @@ void ASlime::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAc
 		if (OtherActor->ActorHasTag("Water"))
 			OnOverlapWaterEvent(OtherActor);
 
-		if (OtherActor->ActorHasTag("Wall"))
-			OnOverlapIncompatibleTerrain();
+		//if (OtherActor->ActorHasTag("Wall"))
+		//	OnOverlapIncompatibleTerrain();
 
 	}
 
@@ -191,6 +185,12 @@ void ASlime::OnOverlapIncompatibleTerrain()
 void ASlime::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (FirstFrame) {
+		FirstFrame = false;
+		Start();
+	}
+
 
 	if (LerpingScale) {
 		SizeLerpTimer += DeltaTime;
@@ -278,12 +278,23 @@ bool ASlime::HasFloorBelow()
 
 	FHitResult hit;
 	FVector rayStart = GetActorLocation();
-	FVector rayEnd = rayStart + FVector::DownVector * 0.1f;
+	FVector rayEnd = rayStart + FVector::DownVector * 25.0f;
 	FCollisionQueryParams queryParams;
 	queryParams.AddIgnoredActor(this);
 
-	bool success = world->LineTraceSingleByChannel(hit, rayStart, rayEnd, ECC_GameTraceChannel2, queryParams);
+	bool success = world->LineTraceSingleByChannel(hit, rayStart, rayEnd, ECollisionChannel::ECC_WorldStatic, queryParams);
 	return success;
+}
+
+void ASlime::Start()
+{
+	//Mesh->SetSimulatePhysics(true);
+	CollisionMesh->OnComponentBeginOverlap.AddDynamic(this, &ASlime::OnOverlapBegin);
+	CollisionMesh->OnComponentHit.AddDynamic(this, &ASlime::OnHitBegin);
+
+	BaseScale = CurrScale = TargetScale = GetActorRelativeScale3D();
+	BaseCollScale = CurrCollScale = TargetCollScale = CollisionMesh->GetRelativeScale3D();
+	AppearEvent();
 }
 
 void ASlime::DecreaseSizeFeedback()
