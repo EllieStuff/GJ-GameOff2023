@@ -111,11 +111,17 @@ void ASlime::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAc
 		}
 	}
 	else {
-		if (OtherActor->ActorHasTag("Floor"))
-			OnOverlapFloorEvent(OtherActor);
+		if (OtherActor->ActorHasTag("Floor")) {
+			if (HasFloorBelow()) OnOverlapFloorEvent(OtherActor);
+			else OnOverlapIncompatibleTerrain();
+		}
 
 		if (OtherActor->ActorHasTag("Water"))
 			OnOverlapWaterEvent(OtherActor);
+
+		if (OtherActor->ActorHasTag("Wall"))
+			OnOverlapIncompatibleTerrain();
+
 	}
 
 }
@@ -165,8 +171,7 @@ void ASlime::OnOverlapFloorEvent_Implementation(AActor* OtherActor)
 
 void ASlime::OnOverlapWater(AActor* OtherActor)
 {
-	SpawnReverseProjectile();
-	DestroySlimeEvent();
+	OnOverlapIncompatibleTerrain();
 
 	// Implement particular methods in each slime, if not using events
 }
@@ -174,6 +179,12 @@ void ASlime::OnOverlapWater(AActor* OtherActor)
 void ASlime::OnOverlapWaterEvent_Implementation(AActor* OtherActor)
 {
 	OnOverlapWater(OtherActor);
+}
+
+void ASlime::OnOverlapIncompatibleTerrain()
+{
+	SpawnReverseProjectile();
+	DestroySlimeEvent();
 }
 
 // Called every frame
@@ -258,6 +269,21 @@ void ASlime::SpawnReverseProjectile()
 	else
 		UE_LOG(LogTemp, Error, TEXT("Slime not found!"));
 
+}
+
+bool ASlime::HasFloorBelow()
+{
+	const UWorld* world = GetWorld();
+	if (!world) return false;
+
+	FHitResult hit;
+	FVector rayStart = GetActorLocation();
+	FVector rayEnd = rayStart + FVector::DownVector * 0.1f;
+	FCollisionQueryParams queryParams;
+	queryParams.AddIgnoredActor(this);
+
+	bool success = world->LineTraceSingleByChannel(hit, rayStart, rayEnd, ECC_GameTraceChannel2, queryParams);
+	return success;
 }
 
 void ASlime::DecreaseSizeFeedback()

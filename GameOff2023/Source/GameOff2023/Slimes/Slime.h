@@ -114,6 +114,8 @@ protected:
 	void OnOverlapWaterEvent(AActor* OtherActor);
 	void OnOverlapWaterEvent_Implementation(AActor* OtherActor);
 
+	void OnOverlapIncompatibleTerrain();
+
 /// Change Scale
 	UFUNCTION(BlueprintCallable, Category = Slime)
 	void RefreshTargetScale();
@@ -166,5 +168,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = Slime)
 	FORCEINLINE int GetSlimeAmount() { return SlimeAmount; }
+
+private:
+	bool HasFloorBelow();
 
 };
