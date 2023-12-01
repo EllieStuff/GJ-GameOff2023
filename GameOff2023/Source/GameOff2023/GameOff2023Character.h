@@ -86,7 +86,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint8 bUsingMotionControllers : 1;
 
-	const uint8 INITIAL_AMMO = 3, MAX_AMMO = 5;
+	const uint8 INITIAL_AMMO = 3, MAX_AMMO = 6;
 
 	FTimerHandle ShootTimerHandle;
 	bool SlimeLoaded = true;
