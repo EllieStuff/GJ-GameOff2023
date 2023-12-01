@@ -99,7 +99,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	float SuckSlimeDelay{ 1.5f };
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	float SuckSlimeRange{ 300 };
+	float SuckSlimeRange{ 500 };
 	class ASlime* SlimeBeingSucked = nullptr;
 
 	void Tick(float DeltaTime) override;

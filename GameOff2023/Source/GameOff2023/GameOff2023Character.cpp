@@ -218,7 +218,7 @@ void AGameOff2023Character::ShootSlime()
 
 				// Set Spawn Collision Handling Override
 				FActorSpawnParameters ActorSpawnParams;
-				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 				// Spawn the projectile at the muzzle
 				ASlimeProjectile* projectileRef = World->SpawnActor<ASlimeProjectile>(Projectiles[CurrSlimeType], SpawnLocation, SpawnRotation, ActorSpawnParams);
