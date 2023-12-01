@@ -96,6 +96,11 @@ AGameOff2023Character::AGameOff2023Character()
 	SlimesAmmunition.Add((uint8)ESlimeType::METAL, INITIAL_AMMO);
 	SlimesAmmunition.Add((uint8)ESlimeType::TEST, INITIAL_AMMO);
 
+	AmmoColors.Add((uint8)ESlimeType::JUMP, FColor::Green);
+	AmmoColors.Add((uint8)ESlimeType::ICE, FColor::Cyan);
+	AmmoColors.Add((uint8)ESlimeType::METAL, FColor::Yellow);
+	AmmoColors.Add((uint8)ESlimeType::TEST, FColor::White);
+
 	Projectiles.Add((uint8)ESlimeType::JUMP, nullptr);
 	Projectiles.Add((uint8)ESlimeType::ICE, nullptr);
 	Projectiles.Add((uint8)ESlimeType::METAL, nullptr);
@@ -180,7 +185,7 @@ void AGameOff2023Character::OnFirePressed()
 {
 	if (!CanShoot()) return;
 	SlimeLoaded = false;
-	SlimesAmmunition[CurrSlimeType]--;
+	RemoveSlimeAmmunition(CurrSlimeType, 1);
 	ShootSlime();
 	GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &AGameOff2023Character::LoadSlime, 1.0f);
 }
@@ -268,14 +273,21 @@ void AGameOff2023Character::OnSuckSlimeReleased()
 void AGameOff2023Character::ResetSlimeSuckMode()
 {
 	SuckSlimeTimer = 0;
-	SlimeBeingSucked = nullptr;
+	if (SlimeBeingSucked) {
+		SlimeBeingSucked->Anim_IsBeingSucked = false;
+		SlimeBeingSucked = nullptr;
+	}
 }
 
 void AGameOff2023Character::UpdateSlimeSuckMode(float DeltaTime)
 {
 	ASlime* SlimeToSuck = GetSlimeToSuck();
 	if (SlimeToSuck == nullptr || SlimeBeingSucked != SlimeToSuck) {
-		SlimeBeingSucked = SlimeToSuck;
+		if (SlimeBeingSucked) SlimeBeingSucked->Anim_IsBeingSucked = false;
+		if (SlimeToSuck) {
+			SlimeBeingSucked = SlimeToSuck;
+			SlimeBeingSucked->Anim_IsBeingSucked = true;
+		}
 		SuckSlimeTimer = 0;
 		UE_LOG(LogTemp, Warning, TEXT("SlimeSuckMode reseted or slime not found."));
 	}
@@ -285,7 +297,8 @@ void AGameOff2023Character::UpdateSlimeSuckMode(float DeltaTime)
 		SuckSlimeTimer += DeltaTime;
 		UE_LOG(LogTemp, Warning, TEXT("Removing at: %s. Time Count = %f"), *SlimeToSuck->GetName(), SuckSlimeTimer);
 		if (SuckSlimeTimer >= SuckSlimeDelay) {
-			SlimesAmmunition[(uint8)SlimeToSuck->GetSlimeType()]++;
+			// Slime Ammo is added from SlimeReverseProjectile
+			//AddSlimeAmmunition((uint8)SlimeToSuck->GetSlimeType(), 1);
 			UE_LOG(LogTemp, Warning, TEXT("Slime Removed at: %s --> %i slimes remaining."), *SlimeToSuck->GetName(), SlimeToSuck->GetSlimeAmount() - 1);
 			ResetSlimeSuckMode();
 			SlimeToSuck->RemoveSlime();
@@ -327,18 +340,18 @@ void AGameOff2023Character::OnChangeSlimeAmmoType(float value)
 {
 	const float THRESHOLD = 0.2f;
 	if (value > THRESHOLD) {
-		//CurrSlimeType = (uint8)ESlimeType::TEST;
 		CurrSlimeType++;
 		if (CurrSlimeType >= (uint8)ESlimeType::COUNT) CurrSlimeType = 0;
-		const FString OnScreenMessage = FString::Printf(TEXT("Type is %i, ammunition is %i"), CurrSlimeType, SlimesAmmunition[CurrSlimeType]);
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, OnScreenMessage);
+		RefreshAmmunitionHUD();
+		//const FString OnScreenMessage = FString::Printf(TEXT("Type is %i, ammunition is %i"), CurrSlimeType, SlimesAmmunition[CurrSlimeType]);
+		//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, OnScreenMessage);
 	}
 	else if (value < -THRESHOLD) {
-		//CurrSlimeType = (uint8)ESlimeType::METAL;
 		if (CurrSlimeType <= 0) CurrSlimeType = (uint8)ESlimeType::COUNT - 1;
 		else CurrSlimeType--;
-		const FString OnScreenMessage = FString::Printf(TEXT("Type is %i, ammunition is %i"), CurrSlimeType, SlimesAmmunition[CurrSlimeType]);
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, OnScreenMessage);
+		RefreshAmmunitionHUD();
+		//const FString OnScreenMessage = FString::Printf(TEXT("Type is %i, ammunition is %i"), CurrSlimeType, SlimesAmmunition[CurrSlimeType]);
+		//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, OnScreenMessage);
 	}
 }
 
@@ -453,4 +466,34 @@ bool AGameOff2023Character::EnableTouchscreenMovement(class UInputComponent* Pla
 	}
 	
 	return false;
+}
+
+bool AGameOff2023Character::AddSlimeAmmunition(uint8 SlimeAmmunitionType, uint8 AmmunitionToAdd)
+{
+	if (!SlimesAmmunition.Find(SlimeAmmunitionType)) return false;
+
+	SlimesAmmunition[SlimeAmmunitionType] += AmmunitionToAdd;
+	RefreshAmmunitionPercentage();
+	return true;
+}
+
+bool AGameOff2023Character::RemoveSlimeAmmunition(uint8 SlimeAmmunitionType, uint8 AmmunitionToRemove)
+{
+	if (!SlimesAmmunition.Find(SlimeAmmunitionType)) return false;
+
+	SlimesAmmunition[SlimeAmmunitionType] -= AmmunitionToRemove;
+	RefreshAmmunitionPercentage();
+	return true;
+}
+
+float AGameOff2023Character::GetCurrSlimeAmmunitionPercentage()
+{
+	return (float)SlimesAmmunition[CurrSlimeType] / (float)MAX_AMMO;
+}
+
+FColor AGameOff2023Character::GetCurrSlimeAmmunitionColor()
+{
+	if (!AmmoColors.Contains(CurrSlimeType)) return FColor::Black;
+
+	return AmmoColors[CurrSlimeType];
 }

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "GameFramework/Pawn.h"
 #include "Slime.generated.h"
 
 
@@ -19,7 +19,7 @@ enum class ESlimeType : uint8
 };
 
 UCLASS()
-class GAMEOFF2023_API ASlime : public AActor
+class GAMEOFF2023_API ASlime : public APawn
 {
 	GENERATED_BODY()
 
@@ -30,6 +30,18 @@ public:
 	const int MAX_SLIMES = 10;
 	const int MIN_SLIMES = 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	bool Anim_IsIdle = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	bool Anim_IsGrowing = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	bool Anim_IsBeingSucked = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	bool Anim_IsStepped = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	bool Anim_IsHit = false;
+
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -39,12 +51,16 @@ protected:
 	int SlimeAmount = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
-	USkeletalMeshComponent* Mesh;
+	USkeletalMeshComponent* MeshComp;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
+	TSubclassOf<class ASlimeReverseProjectile> SlimeReverseProjectile { nullptr };
 	
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
-	//UStaticMeshComponent* CollisionMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	UStaticMeshComponent* CollisionMesh;
 
 	FVector BaseScale, CurrScale, TargetScale;
+	FVector BaseCollScale, CurrCollScale, TargetCollScale;
 	float SizeLerpTimer = 0, SizeLerpDuration = 1;
 	bool LerpingScale = false;
 
@@ -52,6 +68,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
 	ESlimeType SlimeType { ESlimeType::NOT_INITIALIZED };
+
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	class UAnimationAsset* IdleAnimation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
+	class UAnimationAsset* HitAnimation;*/
 
 
 /// Behaviours
@@ -82,10 +103,16 @@ protected:
 
 	// Overlap with Scenario
 	UFUNCTION(BlueprintCallable, Category = Slime)
-	virtual void OnOverlapScenario(AActor* OtherActor);
+	virtual void OnOverlapFloor(AActor* OtherActor);
 	UFUNCTION(BlueprintNativeEvent, Category = Slime)
-	void OnOverlapScenarioEvent(AActor* OtherActor);
-	void OnOverlapScenarioEvent_Implementation(AActor* OtherActor);
+	void OnOverlapFloorEvent(AActor* OtherActor);
+	void OnOverlapFloorEvent_Implementation(AActor* OtherActor);
+
+	UFUNCTION(BlueprintCallable, Category = Slime)
+	virtual void OnOverlapWater(AActor* OtherActor);
+	UFUNCTION(BlueprintNativeEvent, Category = Slime)
+	void OnOverlapWaterEvent(AActor* OtherActor);
+	void OnOverlapWaterEvent_Implementation(AActor* OtherActor);
 
 /// Change Scale
 	UFUNCTION(BlueprintCallable, Category = Slime)
@@ -130,6 +157,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Slime)
 	void RemoveSlime(uint8 SlimesToRemove = 1);
+
+	UFUNCTION(BlueprintCallable, Category = Slime)
+	void SpawnReverseProjectile();
 
 	UFUNCTION(BlueprintCallable, Category = Slime)
 	FORCEINLINE ESlimeType GetSlimeType() { return SlimeType; }
